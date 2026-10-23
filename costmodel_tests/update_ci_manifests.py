@@ -20,7 +20,8 @@ def build_manifests():
     complete["description"] = "CI extended manifest with temporary failure exclusions; explicitly select to run."
     complete["validation_status"] = "unverified"
     complete["inventory_note"] = "Pytest entries are files; their parameterized nodes are collected at runtime."
-    for path in sorted(CI.rglob("test_*.py")):
+    # Path ordering depends on the OS; keep the manifest order stable everywhere.
+    for path in sorted(CI.rglob("test_*.py"), key=lambda path: path.relative_to(CI).as_posix().casefold()):
         relative = path.relative_to(CI)
         name = "pytest_" + path.stem
         complete["cases"].append({"name": name, "runner": "pytest", "family": "pytest",
