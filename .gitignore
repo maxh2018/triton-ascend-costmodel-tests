@@ -1,0 +1,17 @@
+# Python / pytest temporary files
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Test evidence, profiler traces and compiler dumps
+/costmodel_test_results/
+single_case_results/
+
+# Local environments and editor state
+.venv/
+venv/
+.vscode/
+.idea/
+.DS_Store

@@ -1,0 +1,4237 @@
+{
+  "description": "CI extended manifest with temporary failure exclusions; explicitly select to run.",
+  "validation_status": "unverified",
+  "inventory_note": "Pytest entries are files; their parameterized nodes are collected at runtime.",
+  "cases": [
+    {
+      "arguments": [
+        "--n-elements",
+        "2097152",
+        "--batch",
+        "50"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_muls_add_costmodel.py",
+      "family": "elementwise",
+      "name": "muls_add_n2097152",
+      "split": "train"
+    },
+    {
+      "arguments": [
+        "--n-elements",
+        "1048576",
+        "--batch",
+        "50"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_muls_add_costmodel.py",
+      "family": "elementwise",
+      "name": "muls_add_n1048576",
+      "split": "train"
+    },
+    {
+      "arguments": [
+        "--loads",
+        "4",
+        "--n-elements",
+        "2097152",
+        "--batch",
+        "50"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_memory_stream_costmodel.py",
+      "family": "memory_microbenchmark",
+      "name": "memory_stream_l4_n2097152",
+      "split": "train"
+    },
+    {
+      "arguments": [
+        "--loads",
+        "2",
+        "--n-elements",
+        "1048576",
+        "--batch",
+        "50"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_memory_stream_costmodel.py",
+      "family": "memory_microbenchmark",
+      "name": "memory_stream_l2_n1048576",
+      "split": "train"
+    },
+    {
+      "arguments": [
+        "--rows",
+        "1792",
+        "--width",
+        "256",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_cumsum_costmodel.py",
+      "family": "scan",
+      "name": "cumsum_i32_w256",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--rows",
+        "1792",
+        "--width",
+        "128",
+        "--reverse",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_cumsum_costmodel.py",
+      "family": "scan",
+      "name": "cumsum_i32_w128_reverse",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--logical-programs",
+        "224",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_gather_dot_costmodel.py",
+      "family": "indirect_gather",
+      "name": "gather_dot_f16_k16",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--logical-programs",
+        "112",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_gather_dot_costmodel.py",
+      "family": "indirect_gather",
+      "name": "gather_dot_f16_k16_p112",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--kind",
+        "copy",
+        "--rows-per-program",
+        "16",
+        "--logical-cols",
+        "64",
+        "--vector-cols",
+        "64",
+        "--stride-cols",
+        "64",
+        "--loops",
+        "8",
+        "--grid",
+        "56",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_masked_layout_costmodel.py",
+      "family": "masked_copy",
+      "name": "masked_copy_r16_l64_v64_s64_k8",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--kind",
+        "copy",
+        "--rows-per-program",
+        "64",
+        "--logical-cols",
+        "128",
+        "--vector-cols",
+        "128",
+        "--stride-cols",
+        "256",
+        "--loops",
+        "12",
+        "--grid",
+        "56",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_masked_layout_costmodel.py",
+      "family": "masked_copy",
+      "name": "masked_copy_r64_l128_v128_s256_k12",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--logical-programs",
+        "224",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_grid_stride_gather_costmodel.py",
+      "family": "grid_stride_gather",
+      "name": "grid_stride_gather_p224",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--logical-programs",
+        "224",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_grid_stride_dot_costmodel.py",
+      "family": "grid_stride_dot",
+      "name": "grid_stride_dot_p224",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--logical-programs",
+        "56",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_grid_stride_dot_costmodel.py",
+      "family": "grid_stride_dot_development",
+      "name": "grid_stride_dot_p56",
+      "split": "train"
+    },
+    {
+      "arguments": [
+        "--logical-programs",
+        "112",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_grid_stride_dot_costmodel.py",
+      "family": "grid_stride_dot_holdout",
+      "name": "grid_stride_dot_p112",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--logical-programs",
+        "336",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_grid_stride_dot_costmodel.py",
+      "family": "grid_stride_dot_holdout",
+      "name": "grid_stride_dot_p336",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--logical-programs",
+        "448",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_grid_stride_dot_costmodel.py",
+      "family": "grid_stride_dot_development",
+      "name": "grid_stride_dot_p448",
+      "split": "train"
+    },
+    {
+      "arguments": [
+        "--case",
+        "indirect_load_add_b8",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_simd_simt_costmodel.py",
+      "family": "pytest_indirect_load",
+      "name": "pytest_indirect_load_add_b8",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--case",
+        "indirect_index_div_b8",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_simd_simt_costmodel.py",
+      "family": "pytest_indirect_index",
+      "name": "pytest_indirect_index_div_b8",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--case",
+        "indirect_index_and_b8",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_simd_simt_costmodel.py",
+      "family": "pytest_indirect_index",
+      "name": "pytest_indirect_index_and_b8",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--case",
+        "indirect_index_maxmin_b8",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_simd_simt_costmodel.py",
+      "family": "pytest_indirect_index",
+      "name": "pytest_indirect_index_maxmin_b8",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--case",
+        "indirect_load_2d_min_m4_n16_k8",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_simd_simt_costmodel.py",
+      "family": "pytest_semistructured_gather",
+      "name": "pytest_indirect_load_2d_min_m4_n16_k8",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--case",
+        "indirect_load_2d_grid_m4_n16_k8",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_simd_simt_costmodel.py",
+      "family": "pytest_semistructured_gather",
+      "name": "pytest_indirect_load_2d_grid_m4_n16_k8",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--case",
+        "index_select_n64_d32_m8",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_simd_simt_costmodel.py",
+      "family": "pytest_semistructured_gather",
+      "name": "pytest_index_select_n64_d32_m8",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--case",
+        "index_put_n64_d32_m8",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_simd_simt_costmodel.py",
+      "family": "pytest_semistructured_scatter",
+      "name": "pytest_index_put_n64_d32_m8",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--case",
+        "indirect_store_b8",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_simd_simt_costmodel.py",
+      "family": "pytest_semistructured_scatter",
+      "name": "pytest_indirect_store_b8",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--logical-programs",
+        "56",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_gather_dot_costmodel.py",
+      "family": "pytest_gather_dot",
+      "name": "pytest_gather_dot_f16_k16_p56",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--case",
+        "vector_add_n98432",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_costmodel.py",
+      "family": "pytest_elementwise",
+      "name": "pytest_vector_add_n98432",
+      "source_file": "third_party/ascend/unittest/pytest_ut/test_01_vector_add.py",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--case",
+        "permute_x64_y32",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_costmodel.py",
+      "family": "pytest_permute",
+      "name": "pytest_permute_x64_y32",
+      "source_file": "third_party/ascend/unittest/pytest_ut/test_2d_permute.py",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--case",
+        "sigmoid_f32_2x4096x8",
+        "--batch",
+        "10"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_costmodel.py",
+      "family": "pytest_elementwise_nonlinear",
+      "name": "pytest_sigmoid_f32_2x4096x8",
+      "source_file": "third_party/ascend/unittest/pytest_ut/test_sigmoid.py",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--case",
+        "rms_norm_f16_m128_n128",
+        "--batch",
+        "10"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_costmodel.py",
+      "family": "pytest_normalization",
+      "name": "pytest_rms_norm_f16_m128_n128",
+      "source_file": "third_party/ascend/unittest/pytest_ut/test_rms_norm.py",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--case",
+        "layer_norm_f16_m128_n128",
+        "--batch",
+        "10"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_costmodel.py",
+      "family": "pytest_normalization",
+      "name": "pytest_layer_norm_f16_m128_n128",
+      "source_file": "third_party/ascend/unittest/pytest_ut/test_layernorm.py",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--case",
+        "insert_slice_n1024_s32",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_costmodel.py",
+      "family": "pytest_tensor_slice",
+      "name": "pytest_insert_slice_n1024_s32",
+      "source_file": "third_party/ascend/unittest/pytest_ut/test_insert_slice.py",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--case",
+        "atomic_add_f32_32x32_c2",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_costmodel.py",
+      "family": "pytest_atomic",
+      "name": "pytest_atomic_add_f32_32x32_c2",
+      "source_file": "third_party/ascend/unittest/pytest_ut/test_atomic_add.py",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--case",
+        "exp_f32_2x4096x8",
+        "--batch",
+        "10"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_extended_costmodel.py",
+      "family": "pytest_transcendental",
+      "name": "pytest_exp_f32_2x4096x8",
+      "source_file": "third_party/ascend/unittest/pytest_ut/test_exp.py",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--case",
+        "log_f32_n781",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_extended_costmodel.py",
+      "family": "pytest_transcendental",
+      "name": "pytest_log_f32_n781",
+      "source_file": "third_party/ascend/unittest/pytest_ut/test_log.py",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--case",
+        "relu_f32_2x4096x8",
+        "--batch",
+        "10"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_extended_costmodel.py",
+      "family": "pytest_elementwise_nonlinear",
+      "name": "pytest_relu_f32_2x4096x8",
+      "source_file": "third_party/ascend/unittest/pytest_ut/test_relu.py",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--case",
+        "where_f32_2x1024x8",
+        "--batch",
+        "10"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_extended_costmodel.py",
+      "family": "pytest_predicate_select",
+      "name": "pytest_where_f32_2x1024x8",
+      "source_file": "third_party/ascend/unittest/pytest_ut/test_where_mask.py",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--case",
+        "broadcast_bf16_2x4x8",
+        "--batch",
+        "50"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_extended_costmodel.py",
+      "family": "pytest_broadcast",
+      "name": "pytest_broadcast_bf16_2x4x8",
+      "source_file": "third_party/ascend/unittest/pytest_ut/test_broadcast.py",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--case",
+        "max_dim1_f32_m64_n8",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_extended_costmodel.py",
+      "family": "pytest_reduction",
+      "name": "pytest_max_dim1_f32_m64_n8",
+      "source_file": "third_party/ascend/unittest/pytest_ut/test_max_dim1.py",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--case",
+        "mean_dim1_f32_m57_n3",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_extended_costmodel.py",
+      "family": "pytest_reduction",
+      "name": "pytest_mean_dim1_f32_m57_n3",
+      "source_file": "third_party/ascend/unittest/pytest_ut/test_mean_dim1.py",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--case",
+        "mul_reduce_f16_16x1x1x1x1",
+        "--batch",
+        "50"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_extended_costmodel.py",
+      "family": "pytest_reduction",
+      "name": "pytest_mul_reduce_f16_16x1x1x1x1",
+      "source_file": "third_party/ascend/unittest/pytest_ut/test_mul_reduce.py",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--case",
+        "cumprod_f32_n1024",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_extended_costmodel.py",
+      "family": "pytest_scan",
+      "name": "pytest_cumprod_f32_n1024",
+      "source_file": "third_party/ascend/unittest/pytest_ut/test_cumprod.py",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--case",
+        "cummax_f32_16x32_dim1",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_extended_costmodel.py",
+      "family": "pytest_scan",
+      "name": "pytest_cummax_f32_16x32_dim1",
+      "source_file": "third_party/ascend/unittest/pytest_ut/test_cummax.py",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--case",
+        "atomic_max_i32_32x32_c2",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_extended_costmodel.py",
+      "family": "pytest_atomic",
+      "name": "pytest_atomic_max_i32_32x32_c2",
+      "source_file": "third_party/ascend/unittest/pytest_ut/test_atomic_max.py",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--address",
+        "continuous",
+        "--grid",
+        "1",
+        "--block",
+        "256",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_atomic_address_costmodel.py",
+      "family": "atomic_contiguous",
+      "name": "atomic_continuous_i32_p1_b256",
+      "source_file": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_atomic_address_costmodel.py",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--address",
+        "continuous",
+        "--grid",
+        "56",
+        "--block",
+        "256",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_atomic_address_costmodel.py",
+      "family": "atomic_contiguous",
+      "name": "atomic_continuous_i32_p56_b256",
+      "source_file": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_atomic_address_costmodel.py",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--address",
+        "discrete",
+        "--grid",
+        "1",
+        "--block",
+        "256",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_atomic_address_costmodel.py",
+      "family": "atomic_scatter",
+      "name": "atomic_discrete_i32_p1_b256",
+      "source_file": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_atomic_address_costmodel.py",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--address",
+        "discrete",
+        "--grid",
+        "56",
+        "--block",
+        "256",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_atomic_address_costmodel.py",
+      "family": "atomic_scatter",
+      "name": "atomic_discrete_i32_p56_b256",
+      "source_file": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_atomic_address_costmodel.py",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--rows-per-program",
+        "16",
+        "--cols",
+        "128",
+        "--repeats-per-program",
+        "16",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_rowwise_reduction_costmodel.py",
+      "family": "synthetic_reduction",
+      "name": "rowred_r16_c128_k16",
+      "split": "train"
+    },
+    {
+      "arguments": [
+        "--rows-per-program",
+        "64",
+        "--cols",
+        "256",
+        "--repeats-per-program",
+        "22",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_rowwise_reduction_costmodel.py",
+      "family": "synthetic_reduction",
+      "name": "rowred_r64_c256_k22",
+      "split": "train"
+    },
+    {
+      "arguments": [
+        "--layout",
+        "power2",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_softmax_costmodel.py",
+      "family": "softmax",
+      "name": "softmax_power2",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--layout",
+        "original",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_softmax_costmodel.py",
+      "family": "softmax",
+      "name": "softmax_original",
+      "split": "holdout"
+    },
+    {
+      "arguments": [],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/fze/bench_fze_costmodel.py",
+      "factor_argument": "--superblock-factor",
+      "family": "dot_recurrence",
+      "name": "fze_default",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--batch",
+        "1",
+        "--tokens",
+        "1024",
+        "--heads",
+        "32",
+        "--bt",
+        "64"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_solve_tril_costmodel.py",
+      "extra_modes": [
+        {
+          "factor": 4,
+          "route": "mixed"
+        }
+      ],
+      "family": "triangular_recurrence",
+      "name": "solve_tril_b1_t1024_h32_bt64",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--batch",
+        "1",
+        "--tokens",
+        "1024",
+        "--heads",
+        "64",
+        "--bt",
+        "64"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_solve_tril_costmodel.py",
+      "extra_modes": [
+        {
+          "factor": 4,
+          "route": "mixed"
+        }
+      ],
+      "family": "triangular_recurrence",
+      "name": "solve_tril_b1_t1024_h64_bt64",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--batch",
+        "8",
+        "--tokens",
+        "1024",
+        "--heads",
+        "32",
+        "--bt",
+        "64"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_solve_tril_costmodel.py",
+      "extra_modes": [
+        {
+          "factor": 4,
+          "route": "mixed"
+        }
+      ],
+      "family": "triangular_recurrence",
+      "name": "solve_tril_b8_t1024_h32_bt64",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--batch",
+        "16",
+        "--tokens",
+        "1024",
+        "--heads",
+        "64",
+        "--bt",
+        "64"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_solve_tril_costmodel.py",
+      "extra_modes": [
+        {
+          "factor": 4,
+          "route": "mixed"
+        }
+      ],
+      "family": "triangular_recurrence",
+      "name": "solve_tril_b16_t1024_h64_bt64",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--batch",
+        "1",
+        "--tokens",
+        "8192",
+        "--heads",
+        "64",
+        "--bt",
+        "64"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_solve_tril_costmodel.py",
+      "extra_modes": [
+        {
+          "factor": 4,
+          "route": "mixed"
+        }
+      ],
+      "family": "triangular_recurrence",
+      "name": "solve_tril_b1_t8192_h64_bt64",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--batch",
+        "8",
+        "--tokens",
+        "8192",
+        "--heads",
+        "32",
+        "--bt",
+        "64"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_solve_tril_costmodel.py",
+      "extra_modes": [
+        {
+          "factor": 4,
+          "route": "mixed"
+        }
+      ],
+      "family": "triangular_recurrence",
+      "name": "solve_tril_b8_t8192_h32_bt64",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--batch",
+        "16",
+        "--tokens",
+        "8192",
+        "--heads",
+        "64",
+        "--bt",
+        "64"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_solve_tril_costmodel.py",
+      "extra_modes": [
+        {
+          "factor": 4,
+          "route": "mixed"
+        }
+      ],
+      "family": "triangular_recurrence",
+      "name": "solve_tril_b16_t8192_h64_bt64",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--batch",
+        "4",
+        "--tokens",
+        "131072",
+        "--heads",
+        "32",
+        "--bt",
+        "64"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_solve_tril_costmodel.py",
+      "extra_modes": [
+        {
+          "factor": 4,
+          "route": "mixed"
+        }
+      ],
+      "family": "triangular_recurrence",
+      "name": "solve_tril_b4_t131072_h32_bt64",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--kind",
+        "reduction",
+        "--rows-per-program",
+        "32",
+        "--logical-cols",
+        "150",
+        "--vector-cols",
+        "256",
+        "--stride-cols",
+        "150",
+        "--loops",
+        "12",
+        "--grid",
+        "56",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_masked_layout_costmodel.py",
+      "family": "masked_reduction",
+      "name": "masked_reduction_r32_l150_v256_s150_k12",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--kind",
+        "reduction",
+        "--rows-per-program",
+        "64",
+        "--logical-cols",
+        "150",
+        "--vector-cols",
+        "256",
+        "--stride-cols",
+        "150",
+        "--loops",
+        "22",
+        "--grid",
+        "56",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_masked_layout_costmodel.py",
+      "family": "masked_reduction",
+      "name": "masked_reduction_r64_l150_v256_s150_k22",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--kind",
+        "softmax",
+        "--rows-per-program",
+        "32",
+        "--logical-cols",
+        "150",
+        "--vector-cols",
+        "256",
+        "--stride-cols",
+        "150",
+        "--loops",
+        "12",
+        "--grid",
+        "56",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_masked_layout_costmodel.py",
+      "family": "masked_softmax",
+      "name": "masked_softmax_r32_l150_v256_s150_k12",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--kind",
+        "softmax",
+        "--rows-per-program",
+        "80",
+        "--logical-cols",
+        "150",
+        "--vector-cols",
+        "150",
+        "--stride-cols",
+        "150",
+        "--loops",
+        "18",
+        "--grid",
+        "56",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_masked_layout_costmodel.py",
+      "family": "masked_softmax",
+      "name": "masked_softmax_r80_l150_v150_s150_k18",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--tokens",
+        "256",
+        "--width",
+        "1024",
+        "--experts",
+        "8",
+        "--valid",
+        "512",
+        "--batch",
+        "10"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_fbgemm_rowwise_quant_costmodel.py",
+      "family": "pytest_fp8_rowwise_quant",
+      "name": "pytest_fbgemm_rowwise_quant_t256_d1024_e8_v512",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--case",
+        "sum_low_f32_64x8192",
+        "--batch",
+        "10"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_costmodel.py",
+      "family": "pytest_reduction",
+      "name": "pytest_sum_low_f32_64x8192",
+      "source_file": "third_party/ascend/unittest/pytest_ut/test_sum.py",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--case",
+        "sum_high_f32_64x8192",
+        "--batch",
+        "10"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_costmodel.py",
+      "family": "pytest_reduction",
+      "name": "pytest_sum_high_f32_64x8192",
+      "source_file": "third_party/ascend/unittest/pytest_ut/test_sum.py",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--distribution",
+        "uniform",
+        "--rows",
+        "8192",
+        "--width",
+        "256",
+        "--batch",
+        "5"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_histogram_costmodel.py",
+      "family": "histogram",
+      "name": "histogram_i32_r8192_b256_uniform",
+      "source_file": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_histogram_costmodel.py",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--distribution",
+        "single_bin",
+        "--rows",
+        "8192",
+        "--width",
+        "256",
+        "--batch",
+        "5"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_histogram_costmodel.py",
+      "family": "histogram",
+      "name": "histogram_i32_r8192_b256_single",
+      "source_file": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_histogram_costmodel.py",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--distribution",
+        "radix",
+        "--rows",
+        "8192",
+        "--width",
+        "256",
+        "--batch",
+        "5"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_histogram_costmodel.py",
+      "family": "histogram",
+      "name": "histogram_i32_r8192_b256_radix",
+      "source_file": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_histogram_costmodel.py",
+      "split": "holdout"
+    },
+    {
+      "name": "pytest_discrete_mask_4way_f16_8x8",
+      "family": "discrete_memory",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_structural_costmodel.py",
+      "arguments": [
+        "--case",
+        "discrete_mask_4way_f16_8x8",
+        "--batch",
+        "100"
+      ]
+    },
+    {
+      "name": "pytest_reduce_sum_epilogue_f32_8x8x512",
+      "family": "reduction",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_structural_costmodel.py",
+      "arguments": [
+        "--case",
+        "reduce_sum_epilogue_f32_8x8x512",
+        "--batch",
+        "30"
+      ]
+    },
+    {
+      "name": "pytest_max_dim0_f32_64x8",
+      "family": "reduction",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_structural_costmodel.py",
+      "arguments": [
+        "--case",
+        "max_dim0_f32_64x8",
+        "--batch",
+        "50"
+      ]
+    },
+    {
+      "name": "pytest_argmax_f32_37x125_dim1",
+      "family": "reduction",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_structural_costmodel.py",
+      "arguments": [
+        "--case",
+        "argmax_f32_37x125_dim1",
+        "--batch",
+        "50"
+      ]
+    },
+    {
+      "name": "pytest_gather_after_reduce_f32_16x1024",
+      "family": "discrete_reduce_scalar",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_structural_costmodel.py",
+      "arguments": [
+        "--case",
+        "gather_after_reduce_f32_16x1024",
+        "--batch",
+        "30"
+      ]
+    },
+    {
+      "name": "pytest_view_f32_2x256x16",
+      "family": "view_layout",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_structural_costmodel.py",
+      "arguments": [
+        "--case",
+        "view_f32_2x256x16",
+        "--batch",
+        "50"
+      ]
+    },
+    {
+      "name": "pytest_permute_reshape_fused_f32",
+      "family": "view_fusion",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_structural_costmodel.py",
+      "arguments": [
+        "--case",
+        "permute_reshape_fused_f32",
+        "--batch",
+        "20"
+      ]
+    },
+    {
+      "name": "pytest_nearest_resize_i32_1x4x64x64",
+      "family": "cv_discrete_memory",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_structural_costmodel.py",
+      "arguments": [
+        "--case",
+        "nearest_resize_i32_1x4x64x64",
+        "--batch",
+        "30"
+      ]
+    },
+    {
+      "name": "pytest_sort_f32_256x16",
+      "family": "sorting",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_structural_costmodel.py",
+      "arguments": [
+        "--case",
+        "sort_f32_256x16",
+        "--batch",
+        "30"
+      ]
+    },
+    {
+      "name": "pytest_topk_f32_16x64_k4",
+      "family": "sorting",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_structural_costmodel.py",
+      "arguments": [
+        "--case",
+        "topk_f32_16x64_k4",
+        "--batch",
+        "30"
+      ]
+    },
+    {
+      "name": "pytest_multi_input_scan_f32_2x5x10",
+      "family": "scan",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_structural_costmodel.py",
+      "arguments": [
+        "--case",
+        "multi_input_scan_f32_2x5x10",
+        "--batch",
+        "50"
+      ]
+    },
+    {
+      "name": "pytest_cummin_f32_3x5x7_dim1",
+      "family": "scan",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_structural_costmodel.py",
+      "arguments": [
+        "--case",
+        "cummin_f32_3x5x7_dim1",
+        "--batch",
+        "50"
+      ]
+    },
+    {
+      "name": "pytest_histogram_i32_2048_bins2",
+      "family": "histogram",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_structural_costmodel.py",
+      "arguments": [
+        "--case",
+        "histogram_i32_2048_bins2",
+        "--batch",
+        "50"
+      ]
+    },
+    {
+      "name": "pytest_scalar_reduce_store_f32_n16",
+      "family": "scalar_memory",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_structural_costmodel.py",
+      "arguments": [
+        "--case",
+        "scalar_reduce_store_f32_n16",
+        "--batch",
+        "100"
+      ]
+    },
+    {
+      "name": "pytest_conditional_load_f32_n32",
+      "family": "scalar_control_memory",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_structural_costmodel.py",
+      "arguments": [
+        "--case",
+        "conditional_load_f32_n32",
+        "--batch",
+        "100"
+      ]
+    },
+    {
+      "name": "pytest_dot_bf16_16x32x16",
+      "family": "dot",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_structural_costmodel.py",
+      "arguments": [
+        "--case",
+        "dot_bf16_16x32x16",
+        "--batch",
+        "30"
+      ]
+    },
+    {
+      "name": "pytest_fused_softmax_f32_128x257",
+      "family": "fusion_reduction",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_structural_costmodel.py",
+      "arguments": [
+        "--case",
+        "fused_softmax_f32_128x257",
+        "--batch",
+        "20"
+      ]
+    },
+    {
+      "name": "pytest_add_f32_2x4096x8",
+      "family": "pytest_static_binary_loop",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_more_costmodel.py",
+      "arguments": [
+        "--case",
+        "add_f32_2x4096x8",
+        "--batch",
+        "20"
+      ]
+    },
+    {
+      "name": "pytest_sqrt_f32_n781",
+      "family": "pytest_unary_special",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_more_costmodel.py",
+      "arguments": [
+        "--case",
+        "sqrt_f32_n781",
+        "--batch",
+        "20"
+      ]
+    },
+    {
+      "name": "pytest_strided_scatter_f32_s16",
+      "family": "pytest_strided_memory",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_more_costmodel.py",
+      "arguments": [
+        "--case",
+        "strided_scatter_f32_s16",
+        "--batch",
+        "20"
+      ]
+    },
+    {
+      "name": "pytest_block_ptr_strided_f32_4x8_s32x4",
+      "family": "pytest_block_pointer",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_more_costmodel.py",
+      "arguments": [
+        "--case",
+        "block_ptr_strided_f32_4x8_s32x4",
+        "--batch",
+        "20"
+      ]
+    },
+    {
+      "name": "pytest_cos_f32_n781",
+      "family": "pytest_unary_special",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_more_costmodel.py",
+      "arguments": [
+        "--case",
+        "cos_f32_n781",
+        "--batch",
+        "20"
+      ]
+    },
+    {
+      "name": "pytest_mul_f32_2x4096x8",
+      "family": "pytest_static_binary_loop",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_more_costmodel.py",
+      "arguments": [
+        "--case",
+        "mul_f32_2x4096x8",
+        "--batch",
+        "20"
+      ]
+    },
+    {
+      "name": "pytest_associative_scan_max_f32_128x4x16_dim2",
+      "family": "pytest_associative_scan",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_more_costmodel.py",
+      "arguments": [
+        "--case",
+        "associative_scan_max_f32_128x4x16_dim2",
+        "--batch",
+        "20"
+      ]
+    },
+    {
+      "name": "pytest_div_f32_2x4096x8",
+      "family": "pytest_static_binary_loop",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_more_costmodel.py",
+      "arguments": [
+        "--case",
+        "div_f32_2x4096x8",
+        "--batch",
+        "20"
+      ]
+    },
+    {
+      "name": "pytest_f2i32_f32_n3",
+      "family": "pytest_cast",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_more_costmodel.py",
+      "arguments": [
+        "--case",
+        "f2i32_f32_n3",
+        "--batch",
+        "20"
+      ]
+    },
+    {
+      "name": "pytest_chunk_cumsum_f32_b4_t2048_h8_bt128",
+      "family": "pytest_chunk_scan",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_more_costmodel.py",
+      "arguments": [
+        "--case",
+        "chunk_cumsum_f32_b4_t2048_h8_bt128",
+        "--batch",
+        "20"
+      ]
+    },
+    {
+      "name": "pytest_maximum_f32_2x4096x8",
+      "family": "pytest_static_binary_loop",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_more_costmodel.py",
+      "arguments": [
+        "--case",
+        "maximum_f32_2x4096x8",
+        "--batch",
+        "20"
+      ]
+    },
+    {
+      "name": "pytest_strided_compaction_f32_s16",
+      "family": "pytest_strided_memory",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_pytest_ut_more_costmodel.py",
+      "arguments": [
+        "--case",
+        "strided_compaction_f32_s16",
+        "--batch",
+        "20"
+      ]
+    },
+    {
+      "name": "pytest_test_fze",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/fze/test_fze.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_01_vector_add",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_01_vector_add.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_02_fused_softmax",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_02_fused_softmax.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_03_matrix_multiplication",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_03_matrix_multiplication.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_04_low_memory_dropout",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_04_low_memory_dropout.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_05_layer_norm",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_05_layer_norm.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_06_fused_attention",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_06_fused_attention.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_07_extern_functions",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_07_extern_functions.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_08_grouped_gemm",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_08_grouped_gemm.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_09_persistent_matmul",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_09_persistent_matmul.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_10_gather_sorted",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_10_gather_sorted.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_11_rab_time",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_11_rab_time.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_12_hstu_attention",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_12_hstu_attention.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_13_matrix_multiplication_optimized",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_13_matrix_multiplication_optimized.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_14_accuracy_comparison",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_14_accuracy_comparison.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_15_demo_autotune",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_15_demo_autotune.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_16_profiler",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_16_profiler.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_17_demo_libentry",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_17_demo_libentry.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_18_gather",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_18_gather.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_2d_permute",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_2d_permute.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_3Dgrid",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_3Dgrid.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_abs",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_abs.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_abs_2",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_abs_2.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_acos",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_acos.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_acosh",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_acosh.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_add",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_add.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_address_check",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_address_check.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_advance",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_advance.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_advance_ptr",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_advance_ptr.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_affine_map_binding",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_affine_map_binding.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_alloc",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_alloc.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_and",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_and.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_annotations",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_annotations.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_arange",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_arange.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_arch",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_arch.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_argmax",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_argmax.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_argmin",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_argmin.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_ascend_barrier",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_ascend_barrier.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_asin",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_asin.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_asinh",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_asinh.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_asm",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_asm.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_asm_scalar",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_asm_scalar.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_associative_scan",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_associative_scan.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_associative_scan_multi_input",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_associative_scan_multi_input.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_assume",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_assume.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_assume1",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_assume1.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_atan",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_atan.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_atanh",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_atanh.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_atomic_add",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_atomic_add.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_atomic_and",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_atomic_and.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_atomic_cas",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_atomic_cas.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_atomic_max",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_atomic_max.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_atomic_min",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_atomic_min.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_atomic_or",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_atomic_or.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_atomic_rmw_useanalysis",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_atomic_rmw_useanalysis.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_atomic_xchg",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_atomic_xchg.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_atomic_xor",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_atomic_xor.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_attn_cp",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_attn_cp.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_bind_buffer",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_bind_buffer.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_block_ptr",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_block_ptr.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_bool_masked_store_cache",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_bool_masked_store_cache.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_boundary_check",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_boundary_check.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_broadcast",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_broadcast.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_broadcast_op",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_broadcast_op.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_buffer_language",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_buffer_language.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_call_sort",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_call_sort.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_cannonicalize_tl_where",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_cannonicalize_tl_where.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_cast",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_cast.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_cast_full",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_cast_full.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_cat_dim",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_cat_dim.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_cat_help_func",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_cat_help_func.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_cdiv",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_cdiv.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_ceil",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_ceil.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_celoss_indices",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_celoss_indices.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_chunk_coalescing",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_chunk_coalescing.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_clamp",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_clamp.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_common",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_common.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_compile_hint",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_compile_hint.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_compiler_layout_memory_contract",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_compiler_layout_memory_contract.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_complex_mask",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_complex_mask.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_continuous_mask_subi_load",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_continuous_mask_subi_load.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_control_flow",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_control_flow.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_copy",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_copy.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_copysign",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_copysign.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_cos",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_cos.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_cos_2",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_cos_2.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_cosh",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_cosh.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_costmodel_loop_body_stage_division",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_costmodel_loop_body_stage_division.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_cummax",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_cummax.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_cummin",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_cummin.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_cumprod",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_cumprod.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_cumsum",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_cumsum.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_custom",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_custom.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_custom_macro",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_custom_macro.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_cyl_bessel_i0",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_cyl_bessel_i0.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_debug_barrier",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_debug_barrier.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_debug_line_rewriter",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_debug_line_rewriter.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_debug_triton_opt_cmd",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_debug_triton_opt_cmd.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_device_assert",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_device_assert.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_discrete_mask_atomic",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_discrete_mask_atomic.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_discrete_mask_loadstore",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_discrete_mask_loadstore.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_discrete_mask_tail_block_mte_oob",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_discrete_mask_tail_block_mte_oob.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_discrete_overlap_mask",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_discrete_overlap_mask.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_div",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_div.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_dot",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_dot.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_dot_scaled_fp4_fp8",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_dot_scaled_fp4_fp8.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_downgrade",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_downgrade.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_driver",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_driver.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_elementwise_ceil",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_elementwise_ceil.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_elementwise_clip",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_elementwise_clip.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_elementwise_f2i",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_elementwise_f2i.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_elementwise_floor",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_elementwise_floor.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_elementwise_i2f",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_elementwise_i2f.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_elementwise_round",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_elementwise_round.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_eq",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_eq.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_eq_2",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_eq_2.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_erfinv",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_erfinv.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_exp",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_exp.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_exp2",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_exp2.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_expand_dims",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_expand_dims.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_expm1",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_expm1.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_extract_slice",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_extract_slice.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_extract_slice_misaligned",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_extract_slice_misaligned.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_fast_dividef",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_fast_dividef.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_fast_expf",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_fast_expf.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_fdiv",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_fdiv.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_fixpipe",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_fixpipe.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_fixpipe_tensor_dst",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_fixpipe_tensor_dst.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_flip",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_flip.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_float_indirect_atomic_min",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_float_indirect_atomic_min.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_floor",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_floor.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_floordiv",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_floordiv.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_for_ptr",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_for_ptr.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_full",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_full.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_fusedattention",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_fusedattention.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_gamma",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_gamma.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_gather",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_gather.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_gather_simd",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_gather_simd.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_ge",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_ge.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_ge_2",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_ge_2.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_gelu",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_gelu.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_get_active_torch_device",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_get_active_torch_device.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_get_element",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_get_element.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_gt",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_gt.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_hd_permute",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_hd_permute.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_histogram",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_histogram.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_hypot",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_hypot.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_if_advance",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_if_advance.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_if_load",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_if_load.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_if_tensor",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_if_tensor.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_implicit_atomic",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_implicit_atomic.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_implicit_permute",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_implicit_permute.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_import_time",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_import_time.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_index_select_inductor",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_index_select_inductor.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_indirect_atomic_and",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_indirect_atomic_and.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_indirect_atomic_cas",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_indirect_atomic_cas.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_indirect_atomic_max",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_indirect_atomic_max.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_indirect_atomic_min",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_indirect_atomic_min.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_indirect_atomic_or",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_indirect_atomic_or.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_indirect_atomic_xchg",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_indirect_atomic_xchg.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_indirect_atomic_xor",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_indirect_atomic_xor.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_indirect_load_pointer_cast_precise_size",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_indirect_load_pointer_cast_precise_size.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_indirect_scalar_load_offset",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_indirect_scalar_load_offset.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_insert_slice",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_insert_slice.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_interleave",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_interleave.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_interleave_optimizaiton",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_interleave_optimizaiton.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_invert",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_invert.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_isfinited",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_isfinited.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_isnan",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_isnan.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_join",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_join.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_lanzcos",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_lanzcos.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_launcher_empty_signature",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_launcher_empty_signature.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_layernorm",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_layernorm.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_layout_memory_895_closure_differential",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_layout_memory_895_closure_differential.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_ldst",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_ldst.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_le",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_le.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_lgamma",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_lgamma.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_linearize",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_linearize.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_linearize_fallback",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_linearize_fallback.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_linearize_mask",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_linearize_mask.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_linearize_mask_fallback",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_linearize_mask_fallback.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_linearize_permute",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_linearize_permute.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_load_broadcast",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_load_broadcast.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_load_store",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_load_store.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_load_strided",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_load_strided.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_log",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_log.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_log10",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_log10.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_log1p",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_log1p.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_log2",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_log2.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_log_2",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_log_2.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_logical_and",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_logical_and.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_logical_or",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_logical_or.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_lshift",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_lshift.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_lt",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_lt.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_makeblockptr_negative_padding",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_makeblockptr_negative_padding.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_makeblockptr_permute",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_makeblockptr_permute.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_map_elementwise_ops",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_map_elementwise_ops.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_mask_negative_dim_clamp",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_mask_negative_dim_clamp.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_max_constancy",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_max_constancy.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_max_contiguous",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_max_contiguous.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_max_dim0",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_max_dim0.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_max_dim1",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_max_dim1.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_max_propagate_nan",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_max_propagate_nan.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_max_vector",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_max_vector.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_maximum",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_maximum.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_mean_dim0",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_mean_dim0.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_mean_dim1",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_mean_dim1.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_mean_vector",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_mean_vector.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_merge_concat_load_buffer",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_merge_concat_load_buffer.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_min_dim0",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_min_dim0.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_min_dim1",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_min_dim1.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_min_vector",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_min_vector.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_minimum",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_minimum.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_mixed_axis_load_mask",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_mixed_axis_load_mask.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_mod",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_mod.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_mul",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_mul.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_mul_reduce",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_mul_reduce.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_multi_return",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_multi_return.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_multibuffer",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_multibuffer.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_multibuffer_autotune",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_multibuffer_autotune.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_multiple_of",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_multiple_of.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_ne",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_ne.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_nearbyint",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_nearbyint.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_nearest",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_nearest.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_neg",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_neg.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_neg_index",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_neg_index.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_negative_mask_dim",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_negative_mask_dim.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_negative_stride",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_negative_stride.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_nextafter",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_nextafter.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_not",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_not.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_npu_indexing",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_npu_indexing.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_npu_indexing2",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_npu_indexing2.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_or",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_or.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_paged_kvcache_krope",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_paged_kvcache_krope.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_parallel",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_parallel.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_permute",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_permute.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_permute_full",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_permute_full.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_permute_reshape",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_permute_reshape.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_permuted_boundary_check",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_permuted_boundary_check.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_pointer_bitcast_byte_buffer",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_pointer_bitcast_byte_buffer.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_pointer_type",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_pointer_type.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_pow",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_pow.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_precise_div",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_precise_div.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_precise_sqrt",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_precise_sqrt.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_ptr_add",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_ptr_add.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_rand",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_rand.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_range",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_range.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_ravel",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_ravel.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_reduce_count_vector",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_reduce_count_vector.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_reduce_maximum",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_reduce_maximum.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_reduce_mean",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_reduce_mean.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_reduce_min_4_keepdim_True_with_index_op",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_reduce_min_4_keepdim_True_with_index_op.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_reduce_minimum",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_reduce_minimum.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_reduce_sum",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_reduce_sum.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_relu",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_relu.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_reshape",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_reshape.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_resize_performance",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_resize_performance.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_rint",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_rint.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_rms_norm",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_rms_norm.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_rotary_embedding",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_rotary_embedding.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_rotatry_gpt",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_rotatry_gpt.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_rotaty_embedding_gpt",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_rotaty_embedding_gpt.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_row_coalescing_compat",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_row_coalescing_compat.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_row_coalescing_e2e",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_row_coalescing_e2e.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_rshift",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_rshift.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_rsqrt",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_rsqrt.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_scalar_calc",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_scalar_calc.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_scalar_masked_load",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_scalar_masked_load.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_scalarPointer",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_scalarPointer.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_scope",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_scope.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_scope_buffer",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_scope_buffer.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_select_analysis",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_select_analysis.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_select_analysis_for_divsiop",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_select_analysis_for_divsiop.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_select_analysis_for_invert",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_select_analysis_for_invert.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_set_buffer_count_mod_arg",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_set_buffer_count_mod_arg.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_sigmoid",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_sigmoid.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_signbit",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_signbit.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_silu",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_silu.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_simd_simt",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_simd_simt.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_simd_simt_costmodel_cases",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_simd_simt_costmodel_cases.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_simplify_iterargs",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_simplify_iterargs.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_sin",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_sin.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_sinh",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_sinh.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_sink_broadcast",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_sink_broadcast.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_softmax",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_softmax.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_sort",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_sort.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_split",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_split.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_sqrt",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_sqrt.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_stage_calibration_gate",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_stage_calibration_gate.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_static_print_and_assert",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_static_print_and_assert.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_store_new_mask",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_store_new_mask.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_store_scalar",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_store_scalar.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_stride0_load",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_stride0_load.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_strides",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_strides.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_sub",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_sub.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_sub_vec_id",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_sub_vec_id.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_sub_vec_num",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_sub_vec_num.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_subview",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_subview.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_sum",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_sum.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_sum_dim0",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_sum_dim0.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_sum_dim1",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_sum_dim1.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_sum_vector",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_sum_vector.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_swap",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_swap.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_swiglu",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_swiglu.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_swizzle2d",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_swizzle2d.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_sync_block",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_sync_block.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_sync_block_all",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_sync_block_all.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_tan",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_tan.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_tanh",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_tanh.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_template",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_template.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_tensor_descriptor",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_tensor_descriptor.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_tile_chunk_coalescing",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_tile_chunk_coalescing.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_to_buffer",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_to_buffer.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_to_tensor",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_to_tensor.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_top2gating_argmax",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_top2gating_argmax.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_topk",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_topk.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_trans_3d",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_trans_3d.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_triton_eq",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_triton_eq.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_triton_le",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_triton_le.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_triton_lt",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_triton_lt.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_triton_neq",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_triton_neq.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_triton_unified_attention",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_triton_unified_attention.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_trunc",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_trunc.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_umulhi",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_umulhi.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_unlign_max_with_index",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_unlign_max_with_index.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_unlign_sum",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_unlign_sum.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_unorder_block_lock",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_unorder_block_lock.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_unused_func_arg",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_unused_func_arg.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_use_analysis",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_use_analysis.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_utils",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_utils.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_view",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_view.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_where_lt",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_where_lt.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_where_mask",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_where_mask.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_where_var",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_where_var.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_workspace_usage",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_workspace_usage.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_xor",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_xor.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_xor_sum",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_xor_sum.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_zeros",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_zeros.py",
+      "arguments": []
+    },
+    {
+      "name": "pytest_test_zeroslike",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_zeroslike.py",
+      "arguments": []
+    }
+  ],
+  "measurement_protocol": {
+    "model_policy": "No DVFS/thermal residual is fitted into the cost formula.",
+    "order": "short kernels before sustained-load kernels",
+    "reason": "Prevent prior sustained load from changing the device DVFS state of held-out short kernels."
+  },
+  "policy": {
+    "forbidden_online_features": [
+      "operator_name",
+      "kernel_name",
+      "source_path",
+      "exact_shape_signature"
+    ],
+    "heldout_families": [
+      "atomic_contiguous",
+      "atomic_scatter",
+      "cv_discrete_memory",
+      "discrete_memory",
+      "discrete_reduce_scalar",
+      "dot",
+      "dot_recurrence",
+      "fusion_reduction",
+      "grid_stride_dot",
+      "grid_stride_dot_holdout",
+      "grid_stride_gather",
+      "histogram",
+      "indirect_gather",
+      "masked_copy",
+      "masked_reduction",
+      "masked_softmax",
+      "pytest_associative_scan",
+      "pytest_atomic",
+      "pytest_block_pointer",
+      "pytest_broadcast",
+      "pytest_cast",
+      "pytest_chunk_scan",
+      "pytest_elementwise",
+      "pytest_elementwise_nonlinear",
+      "pytest_fp8_rowwise_quant",
+      "pytest_gather_dot",
+      "pytest_indirect_index",
+      "pytest_indirect_load",
+      "pytest_normalization",
+      "pytest_permute",
+      "pytest_predicate_select",
+      "pytest_reduction",
+      "pytest_scan",
+      "pytest_semistructured_gather",
+      "pytest_semistructured_scatter",
+      "pytest_static_binary_loop",
+      "pytest_strided_memory",
+      "pytest_tensor_slice",
+      "pytest_transcendental",
+      "pytest_unary_special",
+      "reduction",
+      "scalar_control_memory",
+      "scalar_memory",
+      "scan",
+      "softmax",
+      "sorting",
+      "triangular_recurrence",
+      "view_fusion",
+      "view_layout"
+    ],
+    "maximum_absolute_relative_error": 0.1,
+    "split_unit": "operator_family",
+    "training_families": [
+      "elementwise",
+      "grid_stride_dot_development",
+      "memory_microbenchmark",
+      "synthetic_reduction"
+    ]
+  },
+  "required_families": [],
+  "schema": "triton-costmodel-generalization-matrix-v1",
+  "regression_sets": [
+    {
+      "name": "historical_main_v105",
+      "case_count": 71,
+      "source": "generalization_matrix_v105_all_71_nominal_order.json"
+    },
+    {
+      "name": "pytest_ut_structural_second_holdout",
+      "case_count": 17,
+      "source": "pytest_ut_structural_17_manifest.json"
+    },
+    {
+      "name": "pytest_ut_structural_first_holdout",
+      "case_count": 12,
+      "source": "pytest_ut_structural_first_12_manifest.json"
+    }
+  ],
+  "excluded_manifest": "manifest_excluded.json"
+}

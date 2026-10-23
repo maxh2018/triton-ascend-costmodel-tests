@@ -1,0 +1,139 @@
+{
+  "description": "Debug subset: three original CI cases. Other cases are excluded; the default 100-case manifest is unchanged.",
+  "cases": [
+    {
+      "arguments": [
+        "--n-elements",
+        "1048576",
+        "--batch",
+        "50"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_muls_add_costmodel.py",
+      "family": "elementwise",
+      "name": "muls_add_n1048576",
+      "split": "train"
+    },
+    {
+      "arguments": [
+        "--rows",
+        "1792",
+        "--width",
+        "256",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_cumsum_costmodel.py",
+      "family": "scan",
+      "name": "cumsum_i32_w256",
+      "split": "holdout"
+    },
+    {
+      "arguments": [
+        "--address",
+        "continuous",
+        "--grid",
+        "1",
+        "--block",
+        "256",
+        "--batch",
+        "20"
+      ],
+      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_atomic_address_costmodel.py",
+      "family": "atomic_contiguous",
+      "name": "atomic_continuous_i32_p1_b256",
+      "source_file": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_atomic_address_costmodel.py",
+      "split": "holdout"
+    }
+  ],
+  "measurement_protocol": {
+    "model_policy": "No DVFS/thermal residual is fitted into the cost formula.",
+    "order": "short kernels before sustained-load kernels",
+    "reason": "Prevent prior sustained load from changing the device DVFS state of held-out short kernels."
+  },
+  "policy": {
+    "forbidden_online_features": [
+      "operator_name",
+      "kernel_name",
+      "source_path",
+      "exact_shape_signature"
+    ],
+    "heldout_families": [
+      "atomic_contiguous",
+      "atomic_scatter",
+      "cv_discrete_memory",
+      "discrete_memory",
+      "discrete_reduce_scalar",
+      "dot",
+      "dot_recurrence",
+      "fusion_reduction",
+      "grid_stride_dot",
+      "grid_stride_dot_holdout",
+      "grid_stride_gather",
+      "histogram",
+      "indirect_gather",
+      "masked_copy",
+      "masked_reduction",
+      "masked_softmax",
+      "pytest_associative_scan",
+      "pytest_atomic",
+      "pytest_block_pointer",
+      "pytest_broadcast",
+      "pytest_cast",
+      "pytest_chunk_scan",
+      "pytest_elementwise",
+      "pytest_elementwise_nonlinear",
+      "pytest_fp8_rowwise_quant",
+      "pytest_gather_dot",
+      "pytest_indirect_index",
+      "pytest_indirect_load",
+      "pytest_normalization",
+      "pytest_permute",
+      "pytest_predicate_select",
+      "pytest_reduction",
+      "pytest_scan",
+      "pytest_semistructured_gather",
+      "pytest_semistructured_scatter",
+      "pytest_static_binary_loop",
+      "pytest_strided_memory",
+      "pytest_tensor_slice",
+      "pytest_transcendental",
+      "pytest_unary_special",
+      "reduction",
+      "scalar_control_memory",
+      "scalar_memory",
+      "scan",
+      "softmax",
+      "sorting",
+      "triangular_recurrence",
+      "view_fusion",
+      "view_layout"
+    ],
+    "maximum_absolute_relative_error": 0.1,
+    "split_unit": "operator_family",
+    "training_families": [
+      "elementwise",
+      "grid_stride_dot_development",
+      "memory_microbenchmark",
+      "synthetic_reduction"
+    ]
+  },
+  "required_families": [],
+  "schema": "triton-costmodel-generalization-matrix-v1",
+  "regression_sets": [
+    {
+      "name": "historical_main_v105",
+      "case_count": 71,
+      "source": "generalization_matrix_v105_all_71_nominal_order.json"
+    },
+    {
+      "name": "pytest_ut_structural_second_holdout",
+      "case_count": 17,
+      "source": "pytest_ut_structural_17_manifest.json"
+    },
+    {
+      "name": "pytest_ut_structural_first_holdout",
+      "case_count": 12,
+      "source": "pytest_ut_structural_first_12_manifest.json"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "cases": [
+    {
+      "name": "custom_add_f32_n1024",
+      "family": "elementwise",
+      "split": "holdout",
+      "driver": "bench_custom_add_example.py",
+      "arguments": ["--n-elements", "1024"]
+    }
+  ]
+}

@@ -1,0 +1,334 @@
+{
+  "cases": [
+    {
+      "name": "maxh2018_indirect_load_i16_n16_w2",
+      "runner": "benchmark",
+      "driver": "maxh2018/bench_indirect_load_i16.py",
+      "arguments": [
+        "--seed",
+        "90521000"
+      ],
+      "family": "indirect_memory_load",
+      "split": "holdout"
+    },
+    {
+      "name": "maxh2018_simt_load_none_f1",
+      "runner": "benchmark",
+      "driver": "maxh2018/bench_indirect_memory_guards.py",
+      "arguments": [
+        "--guard-id",
+        "simt_load_none_f1"
+      ],
+      "family": "indirect_memory_load",
+      "split": "holdout"
+    },
+    {
+      "name": "maxh2018_simt_load_none_f2",
+      "runner": "benchmark",
+      "driver": "maxh2018/bench_indirect_memory_guards.py",
+      "arguments": [
+        "--guard-id",
+        "simt_load_none_f2"
+      ],
+      "family": "indirect_memory_load",
+      "split": "holdout"
+    },
+    {
+      "name": "maxh2018_simt_load_none_f4",
+      "runner": "benchmark",
+      "driver": "maxh2018/bench_indirect_memory_guards.py",
+      "arguments": [
+        "--guard-id",
+        "simt_load_none_f4"
+      ],
+      "family": "indirect_memory_load",
+      "split": "holdout"
+    },
+    {
+      "name": "maxh2018_simt_store_none_f1",
+      "runner": "benchmark",
+      "driver": "maxh2018/bench_indirect_memory_guards.py",
+      "arguments": [
+        "--guard-id",
+        "simt_store_none_f1"
+      ],
+      "family": "indirect_memory_store",
+      "split": "holdout"
+    },
+    {
+      "name": "maxh2018_simt_store_none_f2",
+      "runner": "benchmark",
+      "driver": "maxh2018/bench_indirect_memory_guards.py",
+      "arguments": [
+        "--guard-id",
+        "simt_store_none_f2"
+      ],
+      "family": "indirect_memory_store",
+      "split": "holdout"
+    },
+    {
+      "name": "maxh2018_simt_store_none_f4",
+      "runner": "benchmark",
+      "driver": "maxh2018/bench_indirect_memory_guards.py",
+      "arguments": [
+        "--guard-id",
+        "simt_store_none_f4"
+      ],
+      "family": "indirect_memory_store",
+      "split": "holdout"
+    },
+    {
+      "name": "maxh2018_simt_load_prefix_f1",
+      "runner": "benchmark",
+      "driver": "maxh2018/bench_indirect_memory_guards.py",
+      "arguments": [
+        "--guard-id",
+        "simt_load_prefix_f1"
+      ],
+      "family": "indirect_memory_load",
+      "split": "holdout"
+    },
+    {
+      "name": "maxh2018_simt_load_prefix_f2",
+      "runner": "benchmark",
+      "driver": "maxh2018/bench_indirect_memory_guards.py",
+      "arguments": [
+        "--guard-id",
+        "simt_load_prefix_f2"
+      ],
+      "family": "indirect_memory_load",
+      "split": "holdout"
+    },
+    {
+      "name": "maxh2018_simt_load_prefix_f4",
+      "runner": "benchmark",
+      "driver": "maxh2018/bench_indirect_memory_guards.py",
+      "arguments": [
+        "--guard-id",
+        "simt_load_prefix_f4"
+      ],
+      "family": "indirect_memory_load",
+      "split": "holdout"
+    },
+    {
+      "name": "maxh2018_simt_load_loaded_f1",
+      "runner": "benchmark",
+      "driver": "maxh2018/bench_indirect_memory_guards.py",
+      "arguments": [
+        "--guard-id",
+        "simt_load_loaded_f1"
+      ],
+      "family": "indirect_memory_load",
+      "split": "holdout"
+    },
+    {
+      "name": "maxh2018_simt_load_loaded_f2",
+      "runner": "benchmark",
+      "driver": "maxh2018/bench_indirect_memory_guards.py",
+      "arguments": [
+        "--guard-id",
+        "simt_load_loaded_f2"
+      ],
+      "family": "indirect_memory_load",
+      "split": "holdout"
+    },
+    {
+      "name": "maxh2018_simt_load_loaded_f4",
+      "runner": "benchmark",
+      "driver": "maxh2018/bench_indirect_memory_guards.py",
+      "arguments": [
+        "--guard-id",
+        "simt_load_loaded_f4"
+      ],
+      "family": "indirect_memory_load",
+      "split": "holdout"
+    },
+    {
+      "name": "maxh2018_simt_store_prefix_f1",
+      "runner": "benchmark",
+      "driver": "maxh2018/bench_indirect_memory_guards.py",
+      "arguments": [
+        "--guard-id",
+        "simt_store_prefix_f1"
+      ],
+      "family": "indirect_memory_store",
+      "split": "holdout"
+    },
+    {
+      "name": "maxh2018_simt_store_prefix_f2",
+      "runner": "benchmark",
+      "driver": "maxh2018/bench_indirect_memory_guards.py",
+      "arguments": [
+        "--guard-id",
+        "simt_store_prefix_f2"
+      ],
+      "family": "indirect_memory_store",
+      "split": "holdout"
+    },
+    {
+      "name": "maxh2018_simt_store_prefix_f4",
+      "runner": "benchmark",
+      "driver": "maxh2018/bench_indirect_memory_guards.py",
+      "arguments": [
+        "--guard-id",
+        "simt_store_prefix_f4"
+      ],
+      "family": "indirect_memory_store",
+      "split": "holdout"
+    },
+    {
+      "name": "maxh2018_simt_store_loaded_f1",
+      "runner": "benchmark",
+      "driver": "maxh2018/bench_indirect_memory_guards.py",
+      "arguments": [
+        "--guard-id",
+        "simt_store_loaded_f1"
+      ],
+      "family": "indirect_memory_store",
+      "split": "holdout"
+    },
+    {
+      "name": "maxh2018_simt_store_loaded_f2",
+      "runner": "benchmark",
+      "driver": "maxh2018/bench_indirect_memory_guards.py",
+      "arguments": [
+        "--guard-id",
+        "simt_store_loaded_f2"
+      ],
+      "family": "indirect_memory_store",
+      "split": "holdout"
+    },
+    {
+      "name": "maxh2018_simt_store_loaded_f4",
+      "runner": "benchmark",
+      "driver": "maxh2018/bench_indirect_memory_guards.py",
+      "arguments": [
+        "--guard-id",
+        "simt_store_loaded_f4"
+      ],
+      "family": "indirect_memory_store",
+      "split": "holdout"
+    },
+    {
+      "name": "maxh2018_simd_load_prefix_const",
+      "runner": "benchmark",
+      "driver": "maxh2018/bench_indirect_memory_guards.py",
+      "arguments": [
+        "--guard-id",
+        "simd_load_prefix_const"
+      ],
+      "family": "indirect_memory_load",
+      "split": "holdout"
+    },
+    {
+      "name": "maxh2018_simd_load_loaded_bool",
+      "runner": "benchmark",
+      "driver": "maxh2018/bench_indirect_memory_guards.py",
+      "arguments": [
+        "--guard-id",
+        "simd_load_loaded_bool"
+      ],
+      "family": "indirect_memory_load",
+      "split": "holdout"
+    },
+    {
+      "name": "maxh2018_simd_store_prefix_const",
+      "runner": "benchmark",
+      "driver": "maxh2018/bench_indirect_memory_guards.py",
+      "arguments": [
+        "--guard-id",
+        "simd_store_prefix_const"
+      ],
+      "family": "indirect_memory_store",
+      "split": "holdout"
+    },
+    {
+      "name": "maxh2018_simd_load_none",
+      "runner": "benchmark",
+      "driver": "maxh2018/bench_indirect_memory_guards.py",
+      "arguments": [
+        "--guard-id",
+        "simd_load_none"
+      ],
+      "family": "indirect_memory_load",
+      "split": "holdout"
+    },
+    {
+      "name": "maxh2018_simd_store_none",
+      "runner": "benchmark",
+      "driver": "maxh2018/bench_indirect_memory_guards.py",
+      "arguments": [
+        "--guard-id",
+        "simd_store_none"
+      ],
+      "family": "indirect_memory_store",
+      "split": "holdout"
+    },
+    {
+      "name": "maxh2018_native_load_smallq_i64_f1",
+      "runner": "benchmark",
+      "driver": "maxh2018/bench_indirect_memory_guards.py",
+      "arguments": [
+        "--guard-id",
+        "native_load_smallq_i64_f1"
+      ],
+      "family": "indirect_memory_load",
+      "split": "holdout"
+    },
+    {
+      "name": "maxh2018_native_load_smallq_i64_f2",
+      "runner": "benchmark",
+      "driver": "maxh2018/bench_indirect_memory_guards.py",
+      "arguments": [
+        "--guard-id",
+        "native_load_smallq_i64_f2"
+      ],
+      "family": "indirect_memory_load",
+      "split": "holdout"
+    },
+    {
+      "name": "maxh2018_native_load_smallq_i64_f4",
+      "runner": "benchmark",
+      "driver": "maxh2018/bench_indirect_memory_guards.py",
+      "arguments": [
+        "--guard-id",
+        "native_load_smallq_i64_f4"
+      ],
+      "family": "indirect_memory_load",
+      "split": "holdout"
+    },
+    {
+      "name": "maxh2018_native_store_smallq_i64_f1",
+      "runner": "benchmark",
+      "driver": "maxh2018/bench_indirect_memory_guards.py",
+      "arguments": [
+        "--guard-id",
+        "native_store_smallq_i64_f1"
+      ],
+      "family": "indirect_memory_store",
+      "split": "holdout"
+    },
+    {
+      "name": "maxh2018_native_store_smallq_i64_f2",
+      "runner": "benchmark",
+      "driver": "maxh2018/bench_indirect_memory_guards.py",
+      "arguments": [
+        "--guard-id",
+        "native_store_smallq_i64_f2"
+      ],
+      "family": "indirect_memory_store",
+      "split": "holdout"
+    },
+    {
+      "name": "maxh2018_native_store_smallq_i64_f4",
+      "runner": "benchmark",
+      "driver": "maxh2018/bench_indirect_memory_guards.py",
+      "arguments": [
+        "--guard-id",
+        "native_store_smallq_i64_f4"
+      ],
+      "family": "indirect_memory_store",
+      "split": "holdout"
+    }
+  ]
+}

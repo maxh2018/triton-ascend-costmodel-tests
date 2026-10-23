@@ -1,0 +1,440 @@
+{
+  "description": "Temporarily excluded CI pytest files from the 2026-10-21 functionality check. Remove a repaired entry and regenerate manifests to restore it.",
+  "validation_status": "unverified",
+  "exclusion_date": "2026-10-21",
+  "validation_scope": "functional",
+  "cases": [
+    {
+      "name": "pytest_test_alloc_annotation",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_alloc_annotation.py",
+      "arguments": [],
+      "exclusion_reason": "functional_failure",
+      "failed_tests": [
+        "test_alloc_does_not_annotate_memory_effects"
+      ]
+    },
+    {
+      "name": "pytest_test_ascend_version",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_ascend_version.py",
+      "arguments": [],
+      "exclusion_reason": "functional_failure",
+      "failed_tests": [
+        "test_triton_and_ascend_version_api"
+      ]
+    },
+    {
+      "name": "pytest_test_atan2",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_atan2.py",
+      "arguments": [],
+      "exclusion_reason": "precision_failure",
+      "failed_tests": [
+        "test_atan2_special[-1.0--0.0-3-32-dtype0-float32]"
+      ]
+    },
+    {
+      "name": "pytest_test_auto_blockify_v1_policy",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_auto_blockify_v1_policy.py",
+      "arguments": [],
+      "exclusion_reason": "functional_failure",
+      "failed_tests": [
+        "test_costmodel_analysis_view_materializes_v1_only_on_clone"
+      ]
+    },
+    {
+      "name": "pytest_test_backend_npu_utils_build_flags",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_backend_npu_utils_build_flags.py",
+      "arguments": [],
+      "exclusion_reason": "functional_failure",
+      "failed_tests": [
+        "test_npu_utils_initialization_refreshes_build_path_without_loading"
+      ]
+    },
+    {
+      "name": "pytest_test_cann_extension",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_cann_extension.py",
+      "arguments": [],
+      "exclusion_reason": "functional_failure",
+      "failed_tests": [
+        "test_mem_ops"
+      ]
+    },
+    {
+      "name": "pytest_test_cat",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_cat.py",
+      "arguments": [],
+      "exclusion_reason": "functional_failure",
+      "failed_tests": [
+        "test_cat_pointer_load[unmasked]"
+      ]
+    },
+    {
+      "name": "pytest_test_compiler",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_compiler.py",
+      "arguments": [],
+      "exclusion_reason": "collection_or_setup",
+      "failed_tests": [
+        "triton-ascend-mxh.cases.ci.third_party.ascend.unittest.pytest_ut.test_compiler"
+      ]
+    },
+    {
+      "name": "pytest_test_control_flow_pointer_boundary",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_control_flow_pointer_boundary.py",
+      "arguments": [],
+      "exclusion_reason": "functional_failure",
+      "failed_tests": [
+        "test_block_ptr_if_carries_complete_dynamic_descriptor[0]"
+      ]
+    },
+    {
+      "name": "pytest_test_dot_scaled",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_dot_scaled.py",
+      "arguments": [],
+      "exclusion_reason": "precision_failure",
+      "failed_tests": [
+        "test_scaled_dot[32-32-32-False-bf16-None-4]"
+      ]
+    },
+    {
+      "name": "pytest_test_dot_scaled_fp8",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_dot_scaled_fp8.py",
+      "arguments": [],
+      "exclusion_reason": "functional_failure",
+      "failed_tests": [
+        "test_2D_scaled_dot_chain[1-7-64-fp8e4m3]"
+      ]
+    },
+    {
+      "name": "pytest_test_extra_libdevice_module_map",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_extra_libdevice_module_map.py",
+      "arguments": [],
+      "exclusion_reason": "functional_failure",
+      "failed_tests": [
+        "test_extra_libdevice_module_map_log1p"
+      ]
+    },
+    {
+      "name": "pytest_test_full_row_copy_inlining",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_full_row_copy_inlining.py",
+      "arguments": [],
+      "exclusion_reason": "functional_failure",
+      "failed_tests": [
+        "test_full_row_copy_inlining_scope[True-Ascend950PR_9579-aiv-simd-True]"
+      ]
+    },
+    {
+      "name": "pytest_test_gather_gemv",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_gather_gemv.py",
+      "arguments": [],
+      "exclusion_reason": "functional_failure",
+      "failed_tests": [
+        "test_gather_gemv[xblock1_rblock2048-2048]"
+      ]
+    },
+    {
+      "name": "pytest_test_graph_optimize",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_graph_optimize.py",
+      "arguments": [],
+      "exclusion_reason": "collection_or_setup",
+      "failed_tests": [
+        "triton-ascend-mxh.cases.ci.third_party.ascend.unittest.pytest_ut.test_graph_optimize"
+      ]
+    },
+    {
+      "name": "pytest_test_hoistbroadcast",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_hoistbroadcast.py",
+      "arguments": [],
+      "exclusion_reason": "precision_failure",
+      "failed_tests": [
+        "test_hoistbroadcast_compare[param_list0]"
+      ]
+    },
+    {
+      "name": "pytest_test_index_select",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_index_select.py",
+      "arguments": [],
+      "exclusion_reason": "functional_failure",
+      "failed_tests": [
+        "test_index_select_extension_bool"
+      ]
+    },
+    {
+      "name": "pytest_test_indirect_atomic_add",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_indirect_atomic_add.py",
+      "arguments": [],
+      "exclusion_reason": "precision_failure",
+      "failed_tests": [
+        "test_atomic_add_scalar_splat_mask_skips_inactive_programs"
+      ]
+    },
+    {
+      "name": "pytest_test_inttoptr_offset_reset",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_inttoptr_offset_reset.py",
+      "arguments": [],
+      "exclusion_reason": "functional_failure",
+      "failed_tests": [
+        "test_inttoptr_static_offset_reset"
+      ]
+    },
+    {
+      "name": "pytest_test_launcher_export_api",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_launcher_export_api.py",
+      "arguments": [],
+      "exclusion_reason": "collection_or_setup",
+      "failed_tests": [
+        "triton-ascend-mxh.cases.ci.third_party.ascend.unittest.pytest_ut.test_launcher_export_api"
+      ]
+    },
+    {
+      "name": "pytest_test_layout_memory_91095_native_e2e",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_layout_memory_91095_native_e2e.py",
+      "arguments": [],
+      "exclusion_reason": "functional_failure",
+      "failed_tests": [
+        "test_row_91095_native_metadata_launcher_and_ir"
+      ]
+    },
+    {
+      "name": "pytest_test_load",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_load.py",
+      "arguments": [],
+      "exclusion_reason": "functional_failure",
+      "failed_tests": [
+        "test_load_with_other_mask[param_list0]"
+      ]
+    },
+    {
+      "name": "pytest_test_loop_carried_mask",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_loop_carried_mask.py",
+      "arguments": [],
+      "exclusion_reason": "functional_failure",
+      "failed_tests": [
+        "test_loop_prefix_mask[one-iteration-simd]"
+      ]
+    },
+    {
+      "name": "pytest_test_make_block_ptr_boundary_size",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_make_block_ptr_boundary_size.py",
+      "arguments": [],
+      "exclusion_reason": "precision_failure",
+      "failed_tests": [
+        "test_boundary_size_unchecked_axis"
+      ]
+    },
+    {
+      "name": "pytest_test_make_tensor_ptr_zero_stride",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_make_tensor_ptr_zero_stride.py",
+      "arguments": [],
+      "exclusion_reason": "functional_failure",
+      "failed_tests": [
+        "test_zero_stride_make_block_ptr_load"
+      ]
+    },
+    {
+      "name": "pytest_test_pointer_reshape",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_pointer_reshape.py",
+      "arguments": [],
+      "exclusion_reason": "functional_failure",
+      "failed_tests": [
+        "test_masked_pointer_reshape[dtype0-False-0]"
+      ]
+    },
+    {
+      "name": "pytest_test_runtime_utils",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_runtime_utils.py",
+      "arguments": [],
+      "exclusion_reason": "functional_failure",
+      "failed_tests": [
+        "test_get_logger"
+      ]
+    },
+    {
+      "name": "pytest_test_scalar_dominate_costmodel_cases",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_scalar_dominate_costmodel_cases.py",
+      "arguments": [],
+      "exclusion_reason": "functional_failure",
+      "failed_tests": [
+        "test_costmodel_padded_copy_wgrad"
+      ]
+    },
+    {
+      "name": "pytest_test_scalar_pointer_control_flow",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_scalar_pointer_control_flow.py",
+      "arguments": [],
+      "exclusion_reason": "precision_failure",
+      "failed_tests": [
+        "test_scalar_pointer_while_if_backedge[1-0]"
+      ]
+    },
+    {
+      "name": "pytest_test_select_analysis_for_iterarg",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_select_analysis_for_iterarg.py",
+      "arguments": [],
+      "exclusion_reason": "precision_failure",
+      "failed_tests": [
+        "test_select_analysis_where_iterarg[param_list0]"
+      ]
+    },
+    {
+      "name": "pytest_test_simd_simt_costmodel_route_regressions",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_simd_simt_costmodel_route_regressions.py",
+      "arguments": [],
+      "exclusion_reason": "functional_failure",
+      "failed_tests": [
+        "test_index_put_atomic_selects_all_simd"
+      ]
+    },
+    {
+      "name": "pytest_test_sincos_trans_costmodel_cases",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_sincos_trans_costmodel_cases.py",
+      "arguments": [],
+      "exclusion_reason": "functional_failure",
+      "failed_tests": [
+        "test_sin_costmodel_route"
+      ]
+    },
+    {
+      "name": "pytest_test_specialization_cache_npu",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_specialization_cache_npu.py",
+      "arguments": [],
+      "exclusion_reason": "functional_failure",
+      "failed_tests": [
+        "test_simd_integer_alignment_reuses_compilation[values0-simd]"
+      ]
+    },
+    {
+      "name": "pytest_test_specialization_cache_unit",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_specialization_cache_unit.py",
+      "arguments": [],
+      "exclusion_reason": "functional_failure",
+      "failed_tests": [
+        "test_alignment_policy_is_evaluated_once_per_binder_call"
+      ]
+    },
+    {
+      "name": "pytest_test_store_broadcast",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_store_broadcast.py",
+      "arguments": [],
+      "exclusion_reason": "functional_failure",
+      "failed_tests": [
+        "test_zero_stride_pointer_broadcast_store"
+      ]
+    },
+    {
+      "name": "pytest_test_strided_axis_coalescing_e2e",
+      "runner": "pytest",
+      "family": "pytest",
+      "split": "holdout",
+      "driver": "third_party/ascend/unittest/pytest_ut/test_strided_axis_coalescing_e2e.py",
+      "arguments": [],
+      "exclusion_reason": "functional_failure",
+      "failed_tests": [
+        "test_strided_axis_coalescing_gate_on_e2e"
+      ]
+    }
+  ]
+}

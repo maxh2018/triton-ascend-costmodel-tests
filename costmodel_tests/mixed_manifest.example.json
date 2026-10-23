@@ -1,0 +1,22 @@
+{
+  "description": "Explicit mixed-directory manifest: personal benchmark and CI pytest.",
+  "validation_status": "unverified",
+  "cases": [
+    {
+      "name": "custom_add_f32_n1024",
+      "family": "elementwise",
+      "split": "holdout",
+      "driver": "../cases/personal/examples/bench_custom_add_example.py",
+      "arguments": [
+        "--n-elements",
+        "1024"
+      ]
+    },
+    {
+      "name": "pytest_ci_vector_add",
+      "runner": "pytest",
+      "driver": "../cases/ci/third_party/ascend/unittest/pytest_ut/test_01_vector_add.py",
+      "arguments": []
+    }
+  ]
+}

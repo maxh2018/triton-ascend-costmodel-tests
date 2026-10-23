@@ -1,0 +1,20 @@
+{
+  "purpose": "Minimal local fixtures read by pytest_ut; installed compiler/runtime is required separately.",
+  "files": {
+    "cases/ci/third_party/ascend/unittest/conftest.py": "parent pytest fixtures and --kernel option",
+    "cases/ci/third_party/ascend/backend/compiler.py": "test_compiler_layout_memory_contract.py and test_layout_memory_895_closure_differential.py",
+    "cases/ci/third_party/ascend/backend/driver.py": "test_launcher_export_api.py, test_backend_npu_utils_build_flags.py and differential tests",
+    "cases/ci/third_party/ascend/backend/utils.py": "test_backend_npu_utils_build_flags.py, compiler contract and multibuffer AST tests",
+    "cases/ci/third_party/ascend/backend/backend_register.py": "test_backend_npu_utils_build_flags.py",
+    "cases/ci/third_party/ascend/backend/debug_line_rewriter.py": "test_debug_line_rewriter.py and compiler contract tests",
+    "cases/ci/third_party/ascend/backend/npu_utils.cpp": "test_backend_npu_utils_build_flags.py reads source text",
+    "cases/ci/third_party/ascend/backend/runtime/__init__.py": "test_multibuffer_autotune.py extracts AST definitions",
+    "cases/ci/third_party/ascend/backend/runtime/autotuner.py": "test_multibuffer_autotune.py and historical differential AST tests",
+    "cases/ci/python/triton/runtime/autotuner.py": "test_multibuffer_autotune.py extracts Config from AST",
+    "cases/ci/third_party/ascend/lib/TritonToGraph/LegacyMemoryAccess/StridedAxisCoalescing.cpp": "test_layout_memory_895_closure_differential.py reads source text",
+    "cases/ci/third_party/ascend/lib/TritonToGraph/LegacyMemoryAccess/ChunkCoalescing.cpp": "test_layout_memory_895_closure_differential.py reads source text",
+    "cases/ci/third_party/ascend/lib/TritonToGraph/LegacyMemoryAccess/StridedLoadStoreRewrite.cpp": "test_layout_memory_895_closure_differential.py reads source text",
+    "cases/ci/third_party/ascend/lib/TritonToGraph/LegacyMemoryAccess/RowCoalescing.cpp": "test_layout_memory_895_closure_differential.py reads source text",
+    "cases/ci/third_party/ascend/backend/program_grid.py": "test_compiler_layout_memory_contract.py loads the sibling compiler and its program-grid helper as source fixtures"
+  }
+}
