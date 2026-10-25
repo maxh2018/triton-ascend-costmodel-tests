@@ -106,12 +106,12 @@ C_kernel_us = (C_route + B(P_physical)) / SYS_CNT_frequency
 
 ## 7. 统一回归矩阵与手工执行
 
-`generalization_matrix.json` 是默认、唯一的完整回归入口。当前矩阵包含 100 个不重名 case：历史主矩阵 71 个、第二批 pytest_ut 结构 holdout 17 个、首批 pytest_ut 结构 holdout 12 个。版本化快照为 `generalization_matrix_v140_all_100.json`；两个 holdout 子集分别保留在 `pytest_ut_structural_17_manifest.json` 和 `pytest_ut_structural_first_12_manifest.json`，便于针对性复测，但它们同时也是主矩阵成员。
+仓库根目录下的 `cases/ci/manifest.json` 是默认、唯一维护的完整回归入口。当前矩阵包含 100 个不重名 case：历史主矩阵 71 个、第二批 pytest_ut 结构 holdout 17 个、首批 pytest_ut 结构 holdout 12 个。深层目录中的 `generalization_matrix*.json` 只作为历史兼容快照，不再作为维护源。两个 StageModelKind structural holdout 子集放在 `cases/personal/maxh2018/stagemodel_kind/`，便于针对性复测；其中的配置也已作为通用性覆盖进入 100-case 主矩阵。
 
 在 A5 上先进入目录并加载固定环境：
 
 ```bash
-cd /data/kaixin/triton-ascend/third_party/ascend/unittest/costmodel_ut/costmodel_generalization
+cd /path/to/triton-ascend-costmodel-tests
 source /data/kaixin/set_env.sh
 export TRITON_DEBUG=0
 export TRITON_DISABLE_LINE_INFO=1
@@ -121,20 +121,19 @@ export ASCEND_RT_VISIBLE_DEVICES=<空闲卡号>
 列出全部 case，不需要 NPU：
 
 ```bash
-/home/pkg/ascend_py311/bin/python run_generalization_matrix.py --list-cases
+python costmodel_tests/run.py list
 ```
 
 按精确名称手工运行一个或多个 case：
 
 ```bash
-/home/pkg/ascend_py311/bin/python run_generalization_matrix.py \
-  --case pytest_add_f32_2x4096x8 \
-  --output-root /data/kaixin/manual_costmodel/pytest_add
+python costmodel_tests/run.py \
+  --case pytest_add_f32_2x4096x8 --device 0
 
-/home/pkg/ascend_py311/bin/python run_generalization_matrix.py \
+python costmodel_tests/run.py \
   --case pytest_add_f32_2x4096x8 \
   --case pytest_chunk_cumsum_f32_b4_t2048_h8_bt128 \
-  --output-root /data/kaixin/manual_costmodel/two_cases
+  --device 0
 ```
 
 手工运行完整 100-case Auto 回归：

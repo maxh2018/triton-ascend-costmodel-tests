@@ -96,7 +96,7 @@ def main() -> None:
     for _ in range(args.warmup):
         launch()
     torch.npu.synchronize()
-    samples = []
+    event_pairs = []
     for _ in range(args.repeats):
         begin = torch.npu.Event(enable_timing=True)
         end = torch.npu.Event(enable_timing=True)
@@ -104,8 +104,12 @@ def main() -> None:
         for _ in range(args.batch):
             launch()
         end.record()
-        torch.npu.synchronize()
-        samples.append(float(begin.elapsed_time(end)) * 1000.0 / args.batch)
+        event_pairs.append((begin, end))
+    torch.npu.synchronize()
+    samples = [
+        float(begin.elapsed_time(end)) * 1000.0 / args.batch
+        for begin, end in event_pairs
+    ]
     samples.sort()
     profiler = (profile_kernel(launch, args.profile_dir, "triton_softmax_kernel") if args.profile_dir else None)
     print(

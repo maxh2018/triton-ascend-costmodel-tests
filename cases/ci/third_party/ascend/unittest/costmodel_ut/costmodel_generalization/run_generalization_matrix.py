@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import hashlib
 import json
 import os
@@ -85,9 +86,15 @@ def compiler_state(expected: Path) -> dict:
     }
 
 
+def select_timing_source(requested: str, measurement_count: int, limit: int) -> str:
+    if requested == "auto":
+        return "profiler" if measurement_count <= limit else "event"
+    return requested
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--manifest", type=Path, default=HERE / "generalization_matrix.json")
+    parser.add_argument("--manifest", type=Path, default=HERE.parents[4] / "manifest.json")
     parser.add_argument(
         "--output-root",
         type=Path,
@@ -137,13 +144,37 @@ def main() -> None:
     )
     parser.add_argument(
         "--measurement-selection",
-        choices=("minimum-profiler", "median-profiler"),
-        default="median-profiler",
+        choices=("minimum", "median", "minimum-profiler", "median-profiler"),
+        default="median",
+    )
+    parser.add_argument(
+        "--compile-workers",
+        type=int,
+        default=min(4, os.cpu_count() or 1),
+        help="parallel compiler subprocesses; NPU measurement remains serialized",
+    )
+    parser.add_argument(
+        "--compile-batch-size",
+        type=int,
+        default=0,
+        help="prepared caches retained at once; 0 uses --compile-workers",
+    )
+    parser.add_argument(
+        "--timing-source",
+        choices=("auto", "profiler", "event"),
+        default="auto",
+        help="auto uses profiler for small selections and device events for large matrices",
+    )
+    parser.add_argument(
+        "--profiler-max-measurements",
+        type=int,
+        default=64,
+        help="maximum selected route measurements for auto profiler mode",
     )
     parser.add_argument(
         "--disable-profiler",
         action="store_true",
-        help="diagnostic escape hatch; profiler Duration is the validation target",
+        help="deprecated alias for --timing-source event",
     )
     parser.add_argument("--include-explicit", action="store_true")
     parser.add_argument(
@@ -162,6 +193,12 @@ def main() -> None:
         parser.error("require 0 <= --shard-index < --shard-count")
     if args.measurement_processes <= 0:
         parser.error("--measurement-processes must be positive")
+    if args.compile_workers <= 0:
+        parser.error("--compile-workers must be positive")
+    if args.compile_batch_size < 0:
+        parser.error("--compile-batch-size may not be negative")
+    if args.profiler_max_measurements < 0:
+        parser.error("--profiler-max-measurements may not be negative")
     manifest = json.loads(args.manifest.read_text(encoding="utf-8"))
     for case in manifest["cases"]:
         case["driver"] = str((args.manifest.resolve().parent / case["driver"]).resolve())
@@ -220,25 +257,17 @@ def main() -> None:
     if args.include_explicit and not args.mode:
         modes += [("simd", 1), ("simt_only", 1), ("simt_only", 2), ("simt_only", 4)]
 
-    records = []
-    summary_context = {
-        "schema": "triton-costmodel-generalization-run-v1",
-        "started_utc": run_started_utc,
-        "device": os.environ.get("ASCEND_RT_VISIBLE_DEVICES"),
-        "environment": {
-            "TRITON_DEBUG": os.environ.get("TRITON_DEBUG"),
-            "TRITON_DISABLE_LINE_INFO": os.environ.get("TRITON_DISABLE_LINE_INFO"),
-        },
-        "toolchain": toolchain,
-        "device_snapshot": device_snapshot,
-        "shard": {"index": args.shard_index, "count": args.shard_count},
-        "manifest": str(args.manifest),
-        "manifest_snapshot": str(manifest_snapshot.resolve()),
-        "manifest_sha256": sha256(manifest_snapshot),
-        "selected_cases": list(args.case),
-        "profile_snapshot": str(profile_snapshot.resolve()),
-        "profile_sha256": sha256(profile_snapshot),
-    }
+    global_measurement_count = 0
+    for case in manifest["cases"]:
+        if selected_cases and case["name"] not in selected_cases:
+            continue
+        if args.only_family and case["family"] not in args.only_family:
+            continue
+        global_measurement_count += len(modes)
+        if args.include_explicit and not args.mode:
+            global_measurement_count += len(case.get("extra_modes", []))
+
+    work_items = []
     for case_index, case in enumerate(manifest["cases"]):
         if selected_cases and case["name"] not in selected_cases:
             continue
@@ -248,7 +277,10 @@ def main() -> None:
             continue
         case_modes = list(modes)
         if args.include_explicit and not args.mode:
-            case_modes += [(entry["route"], int(entry.get("factor", 1))) for entry in case.get("extra_modes", [])]
+            case_modes += [
+                (entry["route"], int(entry.get("factor", 1)))
+                for entry in case.get("extra_modes", [])
+            ]
         for route, factor in case_modes:
             name = f"{case['name']}__{route}_f{factor}"
             report = args.output_root / f"{name}.route.json"
@@ -270,41 +302,151 @@ def main() -> None:
                 str(report),
                 *case.get("arguments", []),
             ]
-            if not args.disable_profiler and case.get("profiler", True):
-                profile_parent = args.profile_root or args.output_root
-                command += [
-                    "--profile-dir",
-                    str(profile_parent / name / "profiler"),
-                ]
-            collector = [
-                sys.executable,
-                str(HERE / "collect_backend_evidence.py"),
-                "--name",
-                name,
-                "--output-root",
-                str(args.output_root),
-                "--route-report",
-                str(report),
+            work_items.append(
+                {
+                    "name": name,
+                    "family": case["family"],
+                    "split": case["split"],
+                    "route": route,
+                    "factor": factor,
+                    "report": report,
+                    "command": command,
+                    "profiler_enabled": bool(case.get("profiler", True)),
+                }
+            )
+    if not work_items:
+        parser.error("no matrix measurements selected")
+
+    requested_timing_source = "event" if args.disable_profiler else args.timing_source
+    timing_source = select_timing_source(
+        requested_timing_source,
+        global_measurement_count,
+        args.profiler_max_measurements,
+    )
+    profile_parent = args.profile_root or args.output_root
+    for item in work_items:
+        item["timing_source"] = (
+            "profiler"
+            if timing_source == "profiler" and item["profiler_enabled"]
+            else "event"
+        )
+        if item["timing_source"] == "profiler":
+            item["command"] += [
+                "--profile-dir",
+                str(profile_parent / item["name"] / "profiler"),
+            ]
+
+    compile_batch_size = args.compile_batch_size or args.compile_workers
+    records = []
+    summary_context = {
+        "schema": "triton-costmodel-generalization-run-v1",
+        "started_utc": run_started_utc,
+        "device": os.environ.get("ASCEND_RT_VISIBLE_DEVICES"),
+        "environment": {
+            "TRITON_DEBUG": os.environ.get("TRITON_DEBUG"),
+            "TRITON_DISABLE_LINE_INFO": os.environ.get("TRITON_DISABLE_LINE_INFO"),
+        },
+        "toolchain": toolchain,
+        "device_snapshot": device_snapshot,
+        "shard": {"index": args.shard_index, "count": args.shard_count},
+        "manifest": str(args.manifest),
+        "manifest_snapshot": str(manifest_snapshot.resolve()),
+        "manifest_sha256": sha256(manifest_snapshot),
+        "selected_cases": list(args.case),
+        "profile_snapshot": str(profile_snapshot.resolve()),
+        "profile_sha256": sha256(profile_snapshot),
+        "execution": {
+            "compile_workers": args.compile_workers,
+            "compile_batch_size": compile_batch_size,
+            "measurement_serialized": True,
+            "timing_source_requested": requested_timing_source,
+            "timing_source_effective": timing_source,
+            "profiler_max_measurements": args.profiler_max_measurements,
+            "selected_measurement_count": len(work_items),
+            "global_selected_measurement_count": global_measurement_count,
+        },
+    }
+
+    def collector_command(item: dict, phase: str) -> list[str]:
+        collector = [
+            sys.executable,
+            str(HERE / "collect_backend_evidence.py"),
+            "--name",
+            item["name"],
+            "--output-root",
+            str(args.output_root),
+            "--route-report",
+            str(item["report"]),
+            "--timing-source",
+            item["timing_source"],
+        ]
+        if phase == "prepare":
+            collector += ["--prepare-only", "--prepare-without-profiler"]
+        elif phase == "measure":
+            collector += [
+                "--reuse-prepared",
                 "--measure-in-fresh-process",
-                "--prepare-without-profiler",
                 "--measurement-processes",
                 str(args.measurement_processes),
                 "--measurement-selection",
                 args.measurement_selection,
             ]
-            completed = subprocess.run(collector + ["--", *command], check=False)
-            # The content-addressed compiler cache is reproducible derived
-            # state, not gate evidence. Remove it after each case so a full
-            # serialized matrix does not exhaust the evidence filesystem.
-            shutil.rmtree(args.output_root / name / "cache", ignore_errors=True)
+        else:
+            raise ValueError(f"unknown collector phase: {phase}")
+        return collector + ["--", *item["command"]]
+
+    def prepare(item: dict) -> subprocess.CompletedProcess:
+        return subprocess.run(
+            collector_command(item, "prepare"),
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=False,
+        )
+
+    prepared_count = 0
+    total_count = len(work_items)
+    for batch_start in range(0, total_count, compile_batch_size):
+        batch = work_items[batch_start:batch_start + compile_batch_size]
+        prepare_results = {}
+        with ThreadPoolExecutor(max_workers=args.compile_workers) as executor:
+            futures = {executor.submit(prepare, item): item for item in batch}
+            for future in as_completed(futures):
+                item = futures[future]
+                completed = future.result()
+                prepare_results[item["name"]] = completed
+                prepared_count += 1
+                status = "PASS" if completed.returncode == 0 else "FAIL"
+                print(
+                    f"[compile {prepared_count}/{total_count}] {item['name']}: {status}",
+                    flush=True,
+                )
+                if completed.returncode:
+                    print(completed.stdout, file=sys.stderr, flush=True)
+
+        # Compilation is parallel, but NPU measurement stays serialized.
+        for item in batch:
+            prepared = prepare_results[item["name"]]
+            if prepared.returncode:
+                returncode = prepared.returncode
+            else:
+                completed = subprocess.run(
+                    collector_command(item, "measure"), check=False
+                )
+                returncode = completed.returncode
+            shutil.rmtree(
+                args.output_root / item["name"] / "cache", ignore_errors=True
+            )
             records.append({
-                "name": name,
-                "family": case["family"],
-                "split": case["split"],
-                "route": route,
-                "factor": factor,
-                "returncode": completed.returncode,
-                "evidence_dir": str((args.output_root / name).resolve()),
+                "name": item["name"],
+                "family": item["family"],
+                "split": item["split"],
+                "route": item["route"],
+                "factor": item["factor"],
+                "timing_source": item["timing_source"],
+                "prepare_returncode": prepared.returncode,
+                "returncode": returncode,
+                "evidence_dir": str((args.output_root / item["name"]).resolve()),
             })
             (args.output_root / "matrix_summary.partial.json").write_text(
                 json.dumps(
@@ -314,8 +456,6 @@ def main() -> None:
                 ),
                 encoding="utf-8",
             )
-            if completed.returncode:
-                break
     toolchain_end = {
         "triton_ascend": git_state(args.triton_root),
         "npuir": git_state(args.npuir_root),

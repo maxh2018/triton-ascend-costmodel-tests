@@ -168,27 +168,6 @@
           }
         }
       },
-      "atomic_memory": {
-        "description": "Atomic RMW is priced independently from ordinary store and from loaded-index load traffic. Unknown runtime contention uses a route-relative conservative multiplier; it is a selection-score policy, not an absolute latency claim.",
-        "default": {
-          "logical_elements_per_system_cycle": 4.0,
-          "operation_startup_system_cycles": 0.0,
-          "result_dependency_system_cycles": 200.0,
-          "unknown_contention_multiplier": 1.0,
-          "source": "Compatibility fallback converted from the former SIMD indirect-store seed: 0.125 logical 32-lane transactions/system_cycle.",
-          "confidence": "low"
-        },
-        "operations": {
-          "fadd.f32": {
-            "logical_elements_per_system_cycle": 4.0,
-            "operation_startup_system_cycles": 0.0,
-            "result_dependency_system_cycles": 200.0,
-            "unknown_contention_multiplier": 1.0,
-            "source": "Normalized endpoint calibration in atomic_profile_benchmark.py. SIMD is the reference scale; route-relative ratios are constrained by unique-address and all-hotspot measurements.",
-            "confidence": "medium"
-          }
-        }
-      },
       "control_flow": {
         "loop_backedge_system_cycles": 1.0,
         "conditional_branch_system_cycles": 1.0,
@@ -402,27 +381,6 @@
       "confidence": "low"
     },
     "stage_resources": {
-      "atomic_memory": {
-        "description": "Atomic RMW is priced independently from ordinary store and loaded-index load traffic. For loaded-index fadd.f32, the unknown-contention multiplier conservatively preserves the measured hotspot ordering while retaining the measured unique-address base ordering.",
-        "default": {
-          "logical_elements_per_system_cycle": 16.0,
-          "operation_startup_system_cycles": 0.0,
-          "result_dependency_system_cycles": 100.0,
-          "unknown_contention_multiplier": 1.0,
-          "source": "Compatibility fallback converted from the former SIMT indirect-store seed: 0.5 logical 32-lane transactions/system_cycle.",
-          "confidence": "low"
-        },
-        "operations": {
-          "fadd.f32": {
-            "logical_elements_per_system_cycle": 7.758851730654868,
-            "operation_startup_system_cycles": 0.0,
-            "result_dependency_system_cycles": 100.0,
-            "unknown_contention_multiplier": 3.1106050790699937,
-            "source": "Normalized endpoint calibration: unique addresses SIMD/SIMT=464.167491/239.297003 us fixes the base throughput ratio; all-hotspot SIMD/SIMT=8503.260612/13636.185646 us fixes the relative unknown-contention multiplier.",
-            "confidence": "medium"
-          }
-        }
-      },
       "atomic_memory": {
         "description": "Atomic RMW is priced independently from ordinary store and loaded-index load traffic. For loaded-index fadd.f32, the unknown-contention multiplier conservatively preserves the measured hotspot ordering while retaining the measured unique-address base ordering.",
         "default": {

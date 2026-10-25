@@ -75,6 +75,47 @@ audit = json.loads((output / 'generalization_audit.json').read_text())
 raise SystemExit(result.returncode)
 '''
 
+FAKE_MATRIX = r'''
+import argparse, json
+from pathlib import Path
+
+p = argparse.ArgumentParser()
+p.add_argument('--manifest', type=Path)
+p.add_argument('--output-root', type=Path)
+p.add_argument('--profile', type=Path)
+a, unused = p.parse_known_args()
+manifest = json.loads(a.manifest.read_text())
+candidate = {'legal': True, 'total_system_cycles': 10,
+             'runtime_physical_program_count': 1}
+route = {'selected_route_elapsed_prediction': {
+             'applied': True, 'predicted_microseconds': 10},
+         'stage_model': {'routes': {
+             'all_simd': candidate, 'mixed_simd_simt': candidate},
+             'all_simt_factor_routes': {
+                 str(factor): candidate for factor in (1, 2, 4)}}}
+records = []
+for case in manifest['cases']:
+    name = f"{case['name']}__auto_f1"
+    directory = a.output_root / name
+    directory.mkdir()
+    (directory / 'evidence.json').write_text(json.dumps({
+        'returncode': 0,
+        'benchmark': {'correct': True, 'elapsed_us': {'median': 10}},
+        'measurement_metrics': {'costmodel_target': 'device_event_median_us'},
+    }))
+    (directory / 'route.json').write_text(json.dumps(route))
+    records.append({
+        'name': name, 'family': case['family'], 'split': case['split'],
+        'route': 'auto', 'factor': 1, 'returncode': 0,
+        'evidence_dir': str(directory),
+    })
+(a.output_root / 'matrix_summary.json').write_text(json.dumps({
+    'source_stable_during_run': True,
+    'compiler_stable_during_run': True,
+    'records': records,
+}))
+'''
+
 
 class BatchTests(unittest.TestCase):
     def setUp(self):
@@ -83,6 +124,8 @@ class BatchTests(unittest.TestCase):
         self.root = Path(self.temp.name)
         self.worker = self.root / "fake_worker.py"
         self.worker.write_text(FAKE_WORKER, encoding="utf-8")
+        self.matrix_worker = self.root / "fake_matrix.py"
+        self.matrix_worker.write_text(FAKE_MATRIX, encoding="utf-8")
         self.profile = self.root / "profile.json"
         self.profile.write_text(json.dumps({"kernel_timing": {"system_counter_frequency_mhz": 1,
             "boundary_residual_system_cycles_by_physical_program_count": {"1": 0, "2": 0}}}))
@@ -106,6 +149,7 @@ class BatchTests(unittest.TestCase):
             command += ["--validation-scope", scope]
         with patch.object(sys, "argv", command), \
                 patch.object(self.module, "SINGLE_CASE_SCRIPT", self.worker), \
+                patch.object(self.module, "MATRIX_SCRIPT", self.matrix_worker), \
                 patch.dict(os.environ, {"BATCH_TEST_MODE": mode,
                                         "BATCH_TEST_AUDIT": str(GENERAL / "audit_generalization_matrix.py"),
                                         "TRITON_ASCEND_COMPILE_MODE": ""}), \
@@ -168,6 +212,25 @@ class BatchTests(unittest.TestCase):
         output = self.run_batch("--case", "flaky", "--retries", "0", expected_status=1)
         batch = json.loads((output / "batch_summary.json").read_text())
         self.assertEqual(batch["cases"][0]["attempt_count"], 1)
+
+    def test_event_batch_runs_two_cases_once_and_deduplicates_records(self):
+        output = self.run_batch(
+            "--jobs", "2", "--devices", "0,1", "--retries", "0",
+            "--timing-source", "event", "--case-batch-size", "2",
+            mode="stable", scope="auto",
+        )
+        batch = json.loads((output / "batch_summary.json").read_text())
+        self.assertEqual(batch["case_batch_size"], 2)
+        self.assertEqual(batch["compile_workers"], 8)
+        self.assertEqual(batch["completed_case_count"], 2)
+        self.assertEqual([case["status"] for case in batch["cases"]], ["PASS", "PASS"])
+        self.assertTrue((output / "batches/batch_000/attempt_01/matrix_summary.json").is_file())
+        records = json.loads((output / "matrix_summary.json").read_text())["records"]
+        self.assertEqual(len(records), 2)
+        self.assertEqual({record["name"] for record in records},
+                         {"stable__auto_f1", "flaky__auto_f1"})
+        audit = json.loads((output / "generalization_audit.json").read_text())
+        self.assertTrue(audit["all_pass"])
 
     def test_missing_worker_results_are_failed_and_audited(self):
         output = self.run_batch("--case", "stable", "--retries", "1", mode="missing", expected_status=1)

@@ -316,7 +316,7 @@ def main() -> None:
     parser.add_argument("--evidence-root", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--profile", type=Path, required=True)
-    parser.add_argument("--manifest", type=Path, default=HERE / "generalization_matrix.json")
+    parser.add_argument("--manifest", type=Path, default=HERE.parents[4] / "manifest.json")
     parser.add_argument("--mode", choices=("simd", "simt"), default="simt")
     parser.add_argument("--maximum-error", type=float, default=0.10)
     args = parser.parse_args()

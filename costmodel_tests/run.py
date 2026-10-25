@@ -36,10 +36,32 @@ def main() -> None:
     parser.add_argument("--npuir-root", type=Path, default=ROOT / "third_party/ascend/AscendNPU-IR")
     parser.add_argument("--validation-scope", choices=("auto", "all"), default="auto",
                         help="default Auto; all adds explicit benchmark routes (pytest stays Auto)")
+    parser.add_argument("--timing-source", choices=("auto", "profiler", "event"), default="auto",
+                        help="auto uses device events for large selections")
+    parser.add_argument("--profiler-max-measurements", type=int, default=64)
+    parser.add_argument("--warmup", type=int, default=3)
+    parser.add_argument("--repeats", type=int, default=7)
+    parser.add_argument("--measurement-processes", type=int)
+    parser.add_argument("--compile-workers", type=int, default=8,
+                        help="parallel prepare/compiler processes per batched worker")
+    parser.add_argument("--case-batch-size", type=int, default=0,
+                        help="benchmark cases per persistent worker; 0 selects a safe automatic value")
+    parser.add_argument("--require-idle-devices", action="store_true",
+                        help="refuse to start if npu-smi reports a process on a selected device")
     parser.add_argument("--dry-run", action="store_true", help="show the execution command without running tests")
     args = parser.parse_args()
     if args.jobs < 1 or args.retries < 0:
         parser.error("--jobs must be positive and --retries must be nonnegative")
+    if args.warmup < 0 or args.repeats < 1:
+        parser.error("invalid warmup/repeats")
+    if args.measurement_processes is not None and args.measurement_processes < 1:
+        parser.error("--measurement-processes must be positive")
+    if args.compile_workers < 1:
+        parser.error("--compile-workers must be positive")
+    if args.profiler_max_measurements < 0:
+        parser.error("--profiler-max-measurements may not be negative")
+    if args.case_batch_size < 0:
+        parser.error("--case-batch-size may not be negative")
     pool = [d.strip() for d in args.devices.split(",")] if args.devices is not None else None
     if pool is not None and (not all(pool) or len(set(pool)) != len(pool) or args.jobs > len(pool)):
         parser.error("--devices must be unique/nonempty and contain at least --jobs devices")
@@ -79,7 +101,16 @@ def main() -> None:
                "--manifest", str(manifest_path), "--output-root", str(output),
                "--jobs", str(args.jobs), "--retries", str(args.retries),
                "--validation-scope", args.validation_scope,
+               "--timing-source", args.timing_source,
+               "--profiler-max-measurements", str(args.profiler_max_measurements),
+               "--case-batch-size", str(args.case_batch_size),
+               "--compile-workers", str(args.compile_workers),
+               "--warmup", str(args.warmup), "--repeats", str(args.repeats),
                "--triton-root", str(args.triton_root.resolve()), "--npuir-root", str(args.npuir_root.resolve())]
+    if args.measurement_processes is not None:
+        command += ["--measurement-processes", str(args.measurement_processes)]
+    if args.require_idle_devices:
+        command.append("--require-idle-devices")
     for name in args.case:
         command += ["--case", name]
     for option, value in (("--device", args.device), ("--devices", args.devices)):

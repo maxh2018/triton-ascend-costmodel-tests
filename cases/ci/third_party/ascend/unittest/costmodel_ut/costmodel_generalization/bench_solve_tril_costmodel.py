@@ -54,7 +54,9 @@ def main() -> None:
     )
     source.view(args.batch, chunks, args.bt, args.heads,
                 args.bt).copy_(lower.reshape(1, 1, args.bt, 1, args.bt).to("npu"))
-    output = torch.empty_like(source)
+    # The kernel writes the lower-triangular inverse only.  Keep the untouched
+    # upper triangle at zero so the full-matrix correctness check is defined.
+    output = torch.zeros_like(source)
 
     case = solve_driver._load_case("solve_tril.py")
     kernels = {
@@ -88,6 +90,8 @@ def main() -> None:
             # 4/8/16 active SIMT warps on the physical VF.
             num_warps=4,
             compile_mode=compile_mode,
+            compile_on_910_95=True,
+            enable_dynamic_cv_pipeline=True,
             superblock_factor=args.factor,
             logical_program_count_hint=logical_programs,
             physical_vector_core_count_hint=vector_cores,
@@ -111,7 +115,7 @@ def main() -> None:
     for _ in range(args.warmup):
         launch()
     torch.npu.synchronize()
-    samples = []
+    event_pairs = []
     for _ in range(args.repeats):
         begin = torch.npu.Event(enable_timing=True)
         end = torch.npu.Event(enable_timing=True)
@@ -119,8 +123,12 @@ def main() -> None:
         for _ in range(args.timing_batch):
             launch()
         end.record()
-        torch.npu.synchronize()
-        samples.append(float(begin.elapsed_time(end)) * 1000.0 / args.timing_batch)
+        event_pairs.append((begin, end))
+    torch.npu.synchronize()
+    samples = [
+        float(begin.elapsed_time(end)) * 1000.0 / args.timing_batch
+        for begin, end in event_pairs
+    ]
     samples.sort()
     profiler = (profile_kernel(launch, args.profile_dir, kernel_name) if args.profile_dir else None)
     print(

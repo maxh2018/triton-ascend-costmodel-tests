@@ -29,9 +29,9 @@ def run_logged(command: list[str], env: dict[str, str], log: Path) -> int:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("case", help="exact case name from generalization_matrix.json")
+    parser.add_argument("case", help="exact case name from cases/ci/manifest.json")
     parser.add_argument("--device", help="ASCEND_RT_VISIBLE_DEVICES value")
-    parser.add_argument("--manifest", type=Path, default=HERE / "generalization_matrix.json")
+    parser.add_argument("--manifest", type=Path, default=HERE.parents[4] / "manifest.json")
     parser.add_argument("--validation-scope", choices=("auto", "all"), default="auto")
     parser.add_argument("--output-root", type=Path, help="new or empty output directory")
     parser.add_argument(
@@ -42,6 +42,7 @@ def main() -> None:
     parser.add_argument("--warmup", type=int, default=3)
     parser.add_argument("--repeats", type=int, default=7)
     parser.add_argument("--measurement-processes", type=int, default=3)
+    parser.add_argument("--timing-source", choices=("auto", "profiler", "event"), default="auto")
     parser.add_argument("--triton-root", type=Path, default=HERE.parents[4])
     parser.add_argument("--npuir-root", type=Path,
                         default=HERE.parents[4] / "third_party/ascend/AscendNPU-IR")
@@ -61,7 +62,10 @@ def main() -> None:
         parser.error("warmup must be nonnegative; repeats and measurement-processes must be positive")
 
     env = os.environ.copy()
-    env["PYTHONPATH"] = str(HERE) + (os.pathsep + env["PYTHONPATH"] if env.get("PYTHONPATH") else "")
+    benchmark_dir = HERE.parents[6] / "costmodel_tests/benchmarks"
+    env["PYTHONPATH"] = os.pathsep.join(
+        path for path in (str(benchmark_dir), str(HERE), env.get("PYTHONPATH", "")) if path
+    )
     if env.get("TRITON_ASCEND_COMPILE_MODE"):
         parser.error("unset TRITON_ASCEND_COMPILE_MODE so it cannot override the tested routes")
     if args.device is not None:
@@ -102,6 +106,7 @@ def main() -> None:
         "--output-root", str(output),
         "--warmup", str(args.warmup), "--repeats", str(args.repeats),
         "--measurement-processes", str(args.measurement_processes),
+        "--timing-source", args.timing_source,
         "--triton-root", str(args.triton_root.resolve()),
         "--npuir-root", str(args.npuir_root.resolve()),
     ], env, output / "runner.log")

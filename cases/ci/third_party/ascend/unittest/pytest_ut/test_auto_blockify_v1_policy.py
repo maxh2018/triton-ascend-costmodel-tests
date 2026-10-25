@@ -422,6 +422,33 @@ def test_backend_resource_feedback_recompares_all_legal_route_candidates():
     assert updated["candidate_costs"]["mixed_simd_simt"] == 164083.0
 
 
+def test_backend_resource_feedback_does_not_cross_route_triangular_recurrence_to_mixed():
+    report = json.loads(_factor_report(
+        {1: 241987.0, 2: 201505.0, 4: 163670.0},
+        mixed_score=164083.0,
+    ))
+    report["features"] = {
+        "simt_anchors": {
+            "triangular_solves": [{"recurrence_loop_count": 56}],
+        },
+    }
+    resources = {
+        1: {"stack_size_bytes": 208, "used_registers": 127},
+        2: {"stack_size_bytes": 320, "used_registers": 127},
+        4: {"stack_size_bytes": 600, "used_registers": 64},
+    }
+
+    factor, feedback, updated = _select_backend_resource_aware_factor(json.dumps(report), resources, 4)
+    updated = json.loads(updated)
+
+    assert factor == 2
+    assert feedback["post_backend_selected_candidate"] == "all_simt_only"
+    assert feedback["post_backend_rejected_candidates"] == {
+        "mixed_simd_simt": "automatic_mixed_triangular_recurrence_scope_is_not_correctness_safe",
+    }
+    assert updated["backend_recommended_decision_kind"] == "all_simt_only"
+
+
 def test_backend_cross_route_rerun_restores_mixed_runtime_memory_contract():
     metadata = {
         "compile_mode": "simt_only",

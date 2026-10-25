@@ -170,13 +170,15 @@ def main():
     else:
         starts = [torch.npu.Event(enable_timing=True) for _ in range(args.repeats)]
         ends = [torch.npu.Event(enable_timing=True) for _ in range(args.repeats)]
-        samples_us = []
         for start, end in zip(starts, ends):
             start.record()
             launch()
             end.record()
-            torch.npu.synchronize()
-            samples_us.append(float(start.elapsed_time(end)) * 1000.0)
+        torch.npu.synchronize()
+        samples_us = [
+            float(start.elapsed_time(end)) * 1000.0
+            for start, end in zip(starts, ends)
+        ]
     print("phase=timing_done", file=sys.stderr, flush=True)
     samples_us.sort()
     profiler = (load_profile_kernel()(launch, args.profile_dir, "FZE") if args.profile_dir else None)

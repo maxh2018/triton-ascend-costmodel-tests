@@ -49,14 +49,15 @@ cases/personal/
 |---|---|
 | 个人用例 | `cases/personal/<你的名字>/` |
 | 算子仓用例，如 vLLM、SGLang | `cases/operator_repos/` |
-| 已有 CI 用例 | `cases/ci/`；个人用例不要放到这里 |
+| 已有 CI 泛化用例 | case 定义在 `cases/ci/manifest.json`，通用驱动在 `costmodel_tests/benchmarks/` |
+| StageModelKind 专项用例 | `cases/personal/<你的名字>/stagemodel_kind/`，不要直接混入 CI 泛化清单 |
 
 提交时注意：
 
 - **命名**：建议用字母、数字和下划线，清单中的用例名不能重复。
 - **来源与依赖**：在脚本头部注明来源、额外依赖和适用芯片；输入尽量在脚本中生成。
 - **辅助文件**：随脚本一起提交，按脚本所在位置读取；不要提交编译缓存、profiler 数据和日志。
-- **复用计时工具**：通过 `costmodel_tests/run.py` 启动测试时，个人脚本可以直接导入 `from profile_utils import profile_kernel`，使用仓库已有的计时函数，无需复制工具文件。
+- **复用计时工具**：通过 `costmodel_tests/run.py` 启动测试时，个人脚本可以直接导入 `from profile_utils import profile_kernel`，使用 `costmodel_tests/benchmarks/profile_utils.py`，无需复制工具文件。
 
 ## 3. 清单怎么写
 
@@ -102,7 +103,7 @@ cases/personal/
 
 `benchmark` 表示独立脚本接口，精度检查和计时都由脚本完成。
 
-建议复制 [向量加法示例](../cases/personal/examples/bench_custom_add_example.py) 或 [现有 benchmark 模板](../cases/ci/third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_muls_add_costmodel.py)，保留参数解析、选路、精度检查、计时和 JSON 输出部分。
+建议复制 [向量加法示例](../cases/personal/examples/bench_custom_add_example.py) 或 [现有 benchmark 模板](benchmarks/bench_muls_add_costmodel.py)，保留参数解析、选路、精度检查、计时和 JSON 输出部分。
 
 **一个 benchmark case 对应一个被测 kernel。** 脚本需接受以下公共参数；自己的 shape、dtype 等参数可以另外添加。
 
@@ -159,5 +160,3 @@ print(json.dumps({
 pytest 适配器保留原断言，并验收 Auto 耗时预测。用例需实际运行 kernel 并检查精度；直接调用编译后 kernel 等特殊形式可能需要专门适配。`UNSUPPORTED` 不算通过。
 
 **可选：只检查功能。** 将条目的 `arguments` 设为 `["--costmodel-functional-only"]`，按原 pytest 调用和断言执行，不注入 Auto 选路、不采集或验收耗时。报告中的 Timing 显示 `Not checked`；省略此选项时仍按默认标准验收。
-
-

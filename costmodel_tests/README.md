@@ -108,7 +108,18 @@ python costmodel_tests/run.py --device 0
 
 # 可选：单卡并发，失败后额外重试 3 次
 python costmodel_tests/run.py --device 0 --jobs 2 --retries 3
+
+# 100-case 快速门禁：5 张独占空闲卡，失败不重试，启动前拒绝占用忙卡
+python costmodel_tests/run.py --jobs 5 --devices 0,1,2,3,4 --retries 0 \
+  --require-idle-devices --timing-source auto
 ```
+
+100 个 Auto 路线使用 `auto` 计时时会选择 device event、每个测量只启动一个进程，
+并自动合并为 10 个常驻批次（每批 10 个 case），避免为每个 case 重复加载工具链和查询设备。
+每个批次默认使用 8 个 compile worker 并行执行 prepare；NPU 正式测量仍保持单进程串行。
+device event 结果用于正确性门禁和耗时记录，不套用基于 profiler kernel duration 标定的 10% 误差门禁；
+需要严格检查模型耗时误差时显式使用 `--timing-source profiler`，该模式会更慢。
+`--require-idle-devices` 会在创建结果目录和启动 kernel 前检查所选物理卡，任一卡有进程即拒绝运行。
 
 只测一个 case 时追加 `--case softmax_original`；只查看清单用 `python costmodel_tests/run.py list`。
 

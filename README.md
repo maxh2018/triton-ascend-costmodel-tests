@@ -3,6 +3,11 @@
 本仓库保存 CostModel 测试用例、测试依赖、profile 和说明文档。
 运行测试需要单独安装兼容的 Triton-Ascend、CANN 和 NPU 编译环境。
 
+本仓库是泛化用例的唯一维护源：CI 泛化 case 定义维护在
+[`cases/ci/manifest.json`](cases/ci/manifest.json)，通用 benchmark 驱动维护在
+[`costmodel_tests/benchmarks/`](costmodel_tests/benchmarks/)，针对单个
+`StageModelKind` 的探索性用例维护在 `cases/personal/`。
+
 - [测试脚本使用说明](costmodel_tests/README.md)
 - [自定义测试用例提交规范](costmodel_tests/CUSTOM_CASES.md)
 

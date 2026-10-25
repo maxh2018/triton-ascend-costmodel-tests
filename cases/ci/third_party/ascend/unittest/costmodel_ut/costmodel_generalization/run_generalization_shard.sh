@@ -25,6 +25,10 @@ python "$here/run_generalization_matrix.py" \
   --output-root "$output_root" \
   --warmup 3 \
   --repeats 7 \
+  --compile-workers "${COSTMODEL_COMPILE_WORKERS:-4}" \
+  --compile-batch-size "${COSTMODEL_COMPILE_BATCH_SIZE:-0}" \
+  --timing-source "${COSTMODEL_TIMING_SOURCE:-auto}" \
+  --profiler-max-measurements "${COSTMODEL_PROFILER_MAX_MEASUREMENTS:-64}" \
   --include-explicit \
   --shard-index "$shard_index" \
   --shard-count "$shard_count"

@@ -1,6 +1,8 @@
 # CostModel 回归测试入口
 
-本目录收录 PR #2528 固定提交的 100-case 矩阵、benchmark、运行和验收脚本。
+本目录保留 PR #2528 的运行、审计脚本和 CI 测试依赖。100-case 的唯一维护清单已经上移到
+[`cases/ci/manifest.json`](../../../../../manifest.json)，通用 benchmark 驱动位于
+[`costmodel_tests/benchmarks/`](../../../../../../../costmodel_tests/benchmarks/)。
 
 完整说明：[CostModel 测试用例与脚本使用说明](../../../../../../../costmodel_tests/README.md)。
 

@@ -8,7 +8,7 @@
         "--batch",
         "50"
       ],
-      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_muls_add_costmodel.py",
+      "driver": "../../costmodel_tests/benchmarks/bench_muls_add_costmodel.py",
       "family": "elementwise",
       "name": "muls_add_n1048576",
       "split": "train"
@@ -22,7 +22,7 @@
         "--batch",
         "20"
       ],
-      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_cumsum_costmodel.py",
+      "driver": "../../costmodel_tests/benchmarks/bench_cumsum_costmodel.py",
       "family": "scan",
       "name": "cumsum_i32_w256",
       "split": "holdout"
@@ -38,10 +38,10 @@
         "--batch",
         "20"
       ],
-      "driver": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_atomic_address_costmodel.py",
+      "driver": "../../costmodel_tests/benchmarks/bench_atomic_address_costmodel.py",
       "family": "atomic_contiguous",
       "name": "atomic_continuous_i32_p1_b256",
-      "source_file": "third_party/ascend/unittest/costmodel_ut/costmodel_generalization/bench_atomic_address_costmodel.py",
+      "source_file": "../../costmodel_tests/benchmarks/bench_atomic_address_costmodel.py",
       "split": "holdout"
     }
   ],

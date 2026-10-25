@@ -4,9 +4,9 @@
 This collector deliberately knows nothing about operator names or model
 features.  It records the same observable fields for every Triton case:
 benchmark output, route report, TTIR dumps, backend binary metadata and static
-LDK/STK instructions.  NPU-profiler kernel Duration is the cost-model target.
-Device-event time, static assembly counts, and profiler pipe counters remain
-diagnostics rather than online inputs.
+LDK/STK instructions.  The caller selects either NPU-profiler kernel Duration
+or device-event time as the measurement target.  Static assembly counts and
+profiler pipe counters remain diagnostics rather than online inputs.
 """
 
 from __future__ import annotations
@@ -22,6 +22,7 @@ import subprocess
 import sys
 import time
 from datetime import datetime, timezone
+from types import SimpleNamespace
 
 RESOURCE_RE = re.compile(r"(?:SIMT VF )?Function properties for (?P<function>[^:]+): "
                          r"Stack size: (?P<stack>\d+) bytes, Used register number: (?P<registers>\d+)")
@@ -87,6 +88,16 @@ def main() -> None:
     parser.add_argument("--route-report", type=Path)
     parser.add_argument("--measure-in-fresh-process", action="store_true")
     parser.add_argument(
+        "--prepare-only",
+        action="store_true",
+        help="populate this case's isolated cache, write prepare.json, then exit",
+    )
+    parser.add_argument(
+        "--reuse-prepared",
+        action="store_true",
+        help="reuse a cache produced by --prepare-only instead of deleting it",
+    )
+    parser.add_argument(
         "--prepare-without-profiler",
         action="store_true",
         help="compile/cache once without paying a profiler pass before measurements",
@@ -95,8 +106,14 @@ def main() -> None:
     parser.add_argument("--measurement-processes", type=int, default=1)
     parser.add_argument(
         "--measurement-selection",
-        choices=("last", "minimum-profiler", "median-profiler"),
+        choices=("last", "minimum", "median", "minimum-profiler", "median-profiler"),
         default="last",
+    )
+    parser.add_argument(
+        "--timing-source",
+        choices=("profiler", "event"),
+        default="profiler",
+        help="primary timing source used to select runs and validate the model",
     )
     parser.add_argument(
         "--objdump",
@@ -112,14 +129,22 @@ def main() -> None:
         parser.error("--measurement-processes must be positive")
     if args.measurement_processes > 1 and not args.measure_in_fresh_process:
         parser.error("multiple measurement processes require --measure-in-fresh-process")
+    if args.prepare_only and args.reuse_prepared:
+        parser.error("--prepare-only and --reuse-prepared are mutually exclusive")
 
     case_dir = args.output_root / args.name
-    if case_dir.exists():
+    if case_dir.exists() and not args.reuse_prepared:
         shutil.rmtree(case_dir)
     cache_dir = case_dir / "cache"
     dump_dir = case_dir / "dump"
-    cache_dir.mkdir(parents=True)
-    dump_dir.mkdir(parents=True)
+    if args.reuse_prepared:
+        if not cache_dir.is_dir() or not dump_dir.is_dir():
+            raise FileNotFoundError(
+                f"prepared cache is missing for {args.name}: {case_dir}"
+            )
+    else:
+        cache_dir.mkdir(parents=True)
+        dump_dir.mkdir(parents=True)
 
     env = os.environ.copy()
     env.update({
@@ -130,13 +155,27 @@ def main() -> None:
     })
     started = time.time()
     started_utc = datetime.now(timezone.utc).isoformat()
-    prepare_command = list(command)
+    measurement_command = list(command)
+    if args.timing_source == "event" and "--profile-dir" in measurement_command:
+        profile_index = measurement_command.index("--profile-dir")
+        del measurement_command[profile_index:profile_index + 2]
+    prepare_command = list(measurement_command)
     if args.prepare_without_profiler and "--profile-dir" in prepare_command:
         profile_index = prepare_command.index("--profile-dir")
         del prepare_command[profile_index:profile_index + 2]
     prepare_command += args.prepare_append
     prepare_completed = None
-    if args.measure_in_fresh_process:
+    prepare_marker = case_dir / "prepare.json"
+    if args.reuse_prepared:
+        prepared = json.loads(prepare_marker.read_text(encoding="utf-8"))
+        prepare_completed = SimpleNamespace(
+            returncode=int(prepared["returncode"]),
+            stdout=(case_dir / "compile_stdout.log").read_text(encoding="utf-8"),
+            stderr=(case_dir / "compile_stderr.log").read_text(encoding="utf-8"),
+        )
+        prepare_command = prepared["command"]
+    elif args.measure_in_fresh_process or args.prepare_only:
+        prepare_started = time.time()
         prepare_completed = subprocess.run(
             prepare_command,
             env=env,
@@ -147,6 +186,23 @@ def main() -> None:
         )
         (case_dir / "compile_stdout.log").write_text(prepare_completed.stdout, encoding="utf-8")
         (case_dir / "compile_stderr.log").write_text(prepare_completed.stderr, encoding="utf-8")
+        prepared = {
+            "schema": "triton-costmodel-prepare-v1",
+            "case": args.name,
+            "command": prepare_command,
+            "returncode": prepare_completed.returncode,
+            "elapsed_wall_seconds": time.time() - prepare_started,
+            "cache_dir": str(cache_dir),
+            "dump_dir": str(dump_dir),
+        }
+        prepare_marker.write_text(
+            json.dumps(prepared, indent=2, sort_keys=True), encoding="utf-8"
+        )
+        if args.prepare_only:
+            print(json.dumps(prepared, indent=2, sort_keys=True))
+            if prepare_completed.returncode:
+                raise SystemExit(prepare_completed.returncode)
+            return
     measurement_env = env.copy()
     if prepare_completed is not None and prepare_completed.returncode == 0:
         measurement_env["TRITON_ALWAYS_COMPILE"] = "0"
@@ -157,7 +213,7 @@ def main() -> None:
     else:
         for index in range(args.measurement_processes):
             run = subprocess.run(
-                command,
+                measurement_command,
                 env=measurement_env,
                 text=True,
                 stdout=subprocess.PIPE,
@@ -171,18 +227,21 @@ def main() -> None:
             if run.returncode:
                 break
 
-        def profiler_us(item: tuple[int, subprocess.CompletedProcess, dict | None]) -> float:
+        def measured_us(item: tuple[int, subprocess.CompletedProcess, dict | None]) -> float:
             benchmark = item[2] or {}
-            value = (benchmark.get("profiler") or {}).get("average_us")
+            if args.timing_source == "profiler":
+                value = (benchmark.get("profiler") or {}).get("average_us")
+            else:
+                value = (benchmark.get("elapsed_us") or {}).get("median")
             return float(value) if value is not None else float("inf")
 
         selectable = [item for item in measurement_runs if item[1].returncode == 0]
         if not selectable:
             selected = measurement_runs[-1]
-        elif args.measurement_selection == "minimum-profiler":
-            selected = min(selectable, key=profiler_us)
-        elif args.measurement_selection == "median-profiler":
-            finite = sorted(selectable, key=profiler_us)
+        elif args.measurement_selection in ("minimum", "minimum-profiler"):
+            selected = min(selectable, key=measured_us)
+        elif args.measurement_selection in ("median", "median-profiler"):
+            finite = sorted(selectable, key=measured_us)
             selected = finite[len(finite) // 2]
         else:
             selected = selectable[-1]
@@ -228,7 +287,7 @@ def main() -> None:
         "case":
         args.name,
         "command":
-        command,
+        measurement_command,
         "prepare_command":
         prepare_command if prepare_completed is not None else None,
         "prepare_returncode": (prepare_completed.returncode if prepare_completed is not None else None),
@@ -238,6 +297,7 @@ def main() -> None:
         len(measurement_runs),
         "measurement_selection":
         args.measurement_selection,
+        "measurement_source_requested": args.timing_source,
         "selected_measurement_index":
         selected_measurement_index,
         "measurement_runs": [{
@@ -266,8 +326,11 @@ def main() -> None:
         "benchmark":
         selected_benchmark,
         "measurement_metrics": {
-            "costmodel_target": ("npu_profiler_kernel_duration_average_us" if profiler_us is not None else
-                                 "device_event_median_us_diagnostic_only_profiler_disabled"),
+            "costmodel_target": (
+                "npu_profiler_kernel_duration_average_us"
+                if args.timing_source == "profiler"
+                else "device_event_median_us"
+            ),
             "profiler_kernel_duration_average_us":
             profiler_us,
             "device_event_median_us":

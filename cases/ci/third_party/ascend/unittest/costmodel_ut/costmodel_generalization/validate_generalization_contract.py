@@ -54,7 +54,7 @@ def walk_keys(value, path=""):
 def main() -> None:
     here = Path(__file__).resolve().parent
     parser = argparse.ArgumentParser()
-    parser.add_argument("--manifest", type=Path, default=here / "generalization_matrix.json")
+    parser.add_argument("--manifest", type=Path, default=here.parents[4] / "manifest.json")
     parser.add_argument("--fit-script", type=Path, default=here / "fit_general_route_residual.py")
     parser.add_argument("--profile", type=Path, required=True)
     args = parser.parse_args()
