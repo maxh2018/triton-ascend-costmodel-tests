@@ -78,19 +78,25 @@ python costmodel_tests/run.py [run | list] [选项]
 本仓库只保存测试资料，编译器需单独安装并支持 PR #2528 的选路参数和报告格式。
 Python 基础依赖：`pytest`、`pytest-xdist`、`torch`、`torch_npu`、`triton`，部分用例另有依赖。
 
+安装测试辅助依赖：`python -m pip install -r costmodel_tests/requirements.txt`。
+TA 需要携带 CostModel profile 和 schema；运行前会检查参数格式及所选 NPU 是否匹配。
+
 ```bash
 unset TRITON_ASCEND_COMPILE_MODE
 ```
 
 | 参数 | 含义 |
 |---|---|
-| `--profile <JSON路径>` | 指定编译和审计共用的 profile；默认读取环境变量 `TRITON_ASCEND_AUTO_SIMT_PROFILE`，否则用仓库的 950PR/A5 profile |
+| `--profile <JSON路径>` | 显式使用指定参数做基线回归；未指定时读取环境变量覆盖，否则自动读取当前安装 TA 的兼容 profile；不自动回退到测试仓副本 |
 | `--expected-bishengir <文件路径>` | 指定预期的 `bishengir-compile`；默认从 PATH 查找 |
 | `--triton-root <目录>` | 记录被测 Triton-Ascend 源码状态，不负责安装或切换 Python 包 |
 | `--npuir-root <目录>` | 记录被测 NPU-IR 源码状态，不切换工具链 |
 | `--validation-scope auto / all` | 默认 `auto`；`all` 为 benchmark 增加规定的显式路线，pytest 仍验收 Auto |
 
 </details>
+
+profile 提供 TA 预测需要的硬件和校准参数；默认 Auto 预测时间由 TA 输出，测试脚本负责实测和误差比较。
+详见 [Profile 的作用、选择规则和结果留档](PROFILES.md)。
 
 ## 2. 快速验证命令
 
@@ -199,6 +205,7 @@ python costmodel_tests/run.py --manifest my_tests.json --device 0 --jobs 2 --ret
 | `batch_summary.json` | `failed_cases`、每次日志路径、最后一次尝试目录 |
 | `batch_summary.partial.json` | 正在执行时的完成进度 |
 | `manifest.json`、`costmodel_profile.json` | 本次清单和 profile 快照 |
+| `profile_metadata.json` | 实际 TA 版本/路径/指纹、NPU 目标、原始 profile 哈希及完整快照清单 |
 | `profile_dependencies/` | profile 引用的共享 microbenchmark 数据；归档结果时一起保存 |
 | `cases/<名称>/attempt_01.log` | 首次日志，重试依次生成 `attempt_02.log` 等 |
 

@@ -18,6 +18,7 @@ import pytest
 
 from costmodel_tests.pytest_costmodel import CostModelPytest, pytest_configure
 from costmodel_tests.pytest_npu import LaunchCapture, NpuBackend, resolve_grid
+from costmodel_tests.test_profile_resolution import fake_ta, write_test_profile
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -71,14 +72,16 @@ class PytestCostModelTests(unittest.TestCase):
         dependency = self.root / 'microbench/hardware.json'
         dependency.parent.mkdir()
         dependency.write_text('{"measurements": {}}')
-        self.profile.write_text(json.dumps({'microbenchmark_profile': 'microbench/hardware.json'}))
+        write_test_profile(self.profile, {'microbenchmark_profile': 'microbench/hardware.json'})
+        environment, _ = fake_ta(self.root)
         output = self.root / 'output'
         options = {'costmodel_output': output, 'costmodel_expected_bishengir': None,
                    'costmodel_profile': self.profile, 'costmodel_functional_only': False}
         config = MagicMock()
         config.getoption.side_effect = options.__getitem__
         config.option.numprocesses = 0
-        with patch.dict(os.environ, {'TRITON_ASCEND_COMPILE_MODE': ''}):
+        config.option.collectonly = False
+        with patch.dict(os.environ, {**environment, 'TRITON_ASCEND_COMPILE_MODE': ''}):
             pytest_configure(config)
         snapshot = json.loads((output / 'costmodel_profile.json').read_text())
         self.assertEqual((output / snapshot['microbenchmark_profile']).read_bytes(), dependency.read_bytes())

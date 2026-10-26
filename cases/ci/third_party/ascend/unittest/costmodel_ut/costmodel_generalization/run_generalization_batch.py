@@ -22,7 +22,7 @@ MATRIX_SCRIPT = HERE / "run_generalization_matrix.py"
 ROOT = HERE.parents[6]
 sys.path.insert(0, str(ROOT))
 from costmodel_tests.manifests import load_manifest, select_cases
-from costmodel_tests.profiles import snapshot_profile
+from costmodel_tests.profiles import prepare_profile, profile_report_lines
 from costmodel_tests.pytest_runner import run_pytest_case
 
 
@@ -381,10 +381,6 @@ def main() -> None:
             require_idle_devices(requested_devices)
         except RuntimeError as error:
             parser.error(str(error))
-    profile = (args.profile or Path(env.get("TRITON_ASCEND_AUTO_SIMT_PROFILE") or
-                                   HERE.parents[2] / "costmodel/profiles/simd_simt/ascend_950pr_simd_simt_v1.json")).resolve()
-    if not profile.is_file():
-        parser.error(f"profile does not exist: {profile}")
     compiler = args.expected_bishengir or shutil.which("bishengir-compile")
     if any(c["runner"] == "benchmark" for c in selected) and (not compiler or not Path(compiler).is_file()):
         parser.error("bishengir-compile was not found; load your toolchain or pass --expected-bishengir")
@@ -392,13 +388,17 @@ def main() -> None:
     args.output_root = args.output_root.resolve()
     if args.output_root.exists() and (not args.output_root.is_dir() or any(args.output_root.iterdir())):
         parser.error(f"output directory must be new or empty: {args.output_root}")
-    args.output_root.mkdir(parents=True, exist_ok=True)
+    functional_only = all(c["runner"] == "pytest" and
+                          "--costmodel-functional-only" in c.get("arguments", []) for c in selected)
+    try:
+        prepare_profile(args.profile, args.output_root / "costmodel_profile.json", env,
+                        devices=requested_devices, mode="functional" if functional_only else "costmodel")
+    except (OSError, ValueError) as error:
+        parser.error(str(error))
     manifest["cases"] = selected
     args.manifest_data = manifest
     write_json(args.output_root / "manifest.json", manifest)
     write_json(args.output_root / "generalization_matrix.json", manifest)
-    snapshot_profile(profile, args.output_root / "costmodel_profile.json")
-    env["TRITON_ASCEND_AUTO_SIMT_PROFILE"] = str(args.output_root / "costmodel_profile.json")
     results = {}
     slots = Queue()
     for device in (pool or [None] * args.jobs):
@@ -408,6 +408,7 @@ def main() -> None:
         functional_only = all(c["runner"] == "pytest" and
                               "--costmodel-functional-only" in c.get("arguments", []) for c in selected)
         return {"schema": "costmodel-batch-run-v1", "jobs": args.jobs, "retries": args.retries,
+                "profile_metadata": str(args.output_root / "profile_metadata.json"),
                 "validation_scope": "functional" if functional_only else args.validation_scope,
                 "timing_source_requested": args.timing_source,
                 "timing_source_effective": args.effective_timing_source,
@@ -519,6 +520,7 @@ def main() -> None:
     write_json(args.output_root / "report.json", summary)
     lines = ["# CostModel test report", "", f"Status: {summary['status']}", "",
              "| Case | Precision | Timing | Attempts | Status |", "|---|---|---|---:|---|"]
+    lines[4:4] = profile_report_lines(args.output_root)
     for result in summary["cases"]:
         timing = result.get("timing_pass", False)
         if timing is None:

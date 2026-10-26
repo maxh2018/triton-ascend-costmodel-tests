@@ -18,6 +18,8 @@ import sys
 
 
 HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parents[6]))
+from costmodel_tests.profiles import prepare_profile
 
 
 def run_logged(command: list[str], env: dict[str, str], log: Path) -> int:
@@ -36,7 +38,7 @@ def main() -> None:
     parser.add_argument("--output-root", type=Path, help="new or empty output directory")
     parser.add_argument(
         "--profile", type=Path,
-        help="defaults to TRITON_ASCEND_AUTO_SIMT_PROFILE, then the repository 950PR profile",
+        help="explicit baseline; otherwise use the profile shipped by the installed TA",
     )
     parser.add_argument("--expected-bishengir", type=Path, help="defaults to bishengir-compile on PATH")
     parser.add_argument("--warmup", type=int, default=3)
@@ -72,12 +74,6 @@ def main() -> None:
         env["ASCEND_RT_VISIBLE_DEVICES"] = args.device
     env.setdefault("TRITON_DEBUG", "0")
     env.setdefault("TRITON_DISABLE_LINE_INFO", "1")
-    profile = (args.profile or Path(
-        env.get("TRITON_ASCEND_AUTO_SIMT_PROFILE")
-        or HERE.parents[2] / "costmodel/profiles/simd_simt/ascend_950pr_simd_simt_v1.json"
-    )).resolve()
-    if not profile.is_file():
-        parser.error(f"profile does not exist: {profile}")
     compiler = args.expected_bishengir or shutil.which("bishengir-compile")
     if compiler is None:
         parser.error("bishengir-compile is not on PATH; load your toolchain environment first")
@@ -86,7 +82,10 @@ def main() -> None:
     output = (args.output_root or HERE / "single_case_results" / f"{args.case}_{timestamp}").resolve()
     if output.exists() and (not output.is_dir() or any(output.iterdir())):
         parser.error(f"output directory must be new or empty: {output}")
-    output.mkdir(parents=True, exist_ok=True)
+    try:
+        profile = prepare_profile(args.profile, output / "costmodel_profile.json", env)
+    except (OSError, ValueError) as error:
+        parser.error(str(error))
     # Keep the original manifest untouched. Both runner and audit use this subset.
     manifest["cases"] = selected
     subset = output / "single_case_manifest.json"
@@ -144,6 +143,7 @@ def main() -> None:
     result = {
         "case": args.case, "status": "PASS" if passed else "FAIL",
         "validation_scope": args.validation_scope,
+        "profile_metadata": str(output / "profile_metadata.json"),
         "runner_exit_status": runner_status, "audit_exit_status": audit_status,
         "audit_all_pass": audit.get("all_pass") if audit else None,
         "expected_record_count": expected_count,

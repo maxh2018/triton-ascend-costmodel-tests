@@ -10,6 +10,7 @@ import sys
 import tempfile
 import unittest
 from unittest.mock import patch
+from costmodel_tests.test_profile_resolution import fake_ta, write_test_profile
 
 GENERAL = Path(__file__).resolve().parents[1] / "cases/ci/third_party/ascend/unittest/costmodel_ut/costmodel_generalization"
 
@@ -122,13 +123,17 @@ class BatchTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
+        environment, _ = fake_ta(self.root)
+        environment_patch = patch.dict(os.environ, environment)
+        environment_patch.start()
+        self.addCleanup(environment_patch.stop)
         self.worker = self.root / "fake_worker.py"
         self.worker.write_text(FAKE_WORKER, encoding="utf-8")
         self.matrix_worker = self.root / "fake_matrix.py"
         self.matrix_worker.write_text(FAKE_MATRIX, encoding="utf-8")
         self.profile = self.root / "profile.json"
-        self.profile.write_text(json.dumps({"kernel_timing": {"system_counter_frequency_mhz": 1,
-            "boundary_residual_system_cycles_by_physical_program_count": {"1": 0, "2": 0}}}))
+        write_test_profile(self.profile, {"kernel_timing": {"system_counter_frequency_mhz": 1,
+            "boundary_residual_system_cycles_by_physical_program_count": {"1": 0, "2": 0}}})
         self.manifest = self.root / "manifest.json"
         (self.root / "drivers").mkdir()
         (self.root / "drivers/worker.py").write_text("# custom benchmark placeholder\n")
@@ -182,7 +187,7 @@ class BatchTests(unittest.TestCase):
         dependency.write_text('{"measurements": {}}')
         profile = json.loads(self.profile.read_text())
         profile["microbenchmark_profile"] = "microbench/hardware.json"
-        self.profile.write_text(json.dumps(profile))
+        write_test_profile(self.profile, profile)
         output = self.run_batch(mode="stable", scope="auto")
         snapshot = json.loads((output / "costmodel_profile.json").read_text())
         self.assertEqual((output / snapshot["microbenchmark_profile"]).read_bytes(), dependency.read_bytes())

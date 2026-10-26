@@ -23,8 +23,9 @@ def run_pytest_case(case, args, env, device):
         command = [sys.executable, "-m", "pytest", *targets,
                    "-p", "costmodel_tests.pytest_costmodel",
                    "--costmodel-output", str(output / "pytest_costmodel"),
-                   "--costmodel-profile", str(args.output_root / "costmodel_profile.json"),
                    f"--junitxml={output / 'pytest.xml'}", "-v"]
+        if (args.output_root / "costmodel_profile.json").is_file():
+            command += ["--costmodel-profile", str(args.output_root / "costmodel_profile.json")]
         if args.expected_bishengir is not None:
             command += ["--costmodel-expected-bishengir", str(args.expected_bishengir)]
         command += case.get("arguments", [])

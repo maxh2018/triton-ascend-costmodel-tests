@@ -16,10 +16,7 @@ import shutil
 import pytest
 
 from .pytest_npu import LaunchCapture, NpuBackend
-from .profiles import snapshot_profile
-
-ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_PROFILE = ROOT / "cases/ci/third_party/ascend/costmodel/profiles/simd_simt/ascend_950pr_simd_simt_v1.json"
+from .profiles import prepare_profile, profile_report_lines
 
 
 def write_json(path, value):
@@ -50,17 +47,17 @@ def pytest_configure(config):
         compiler = shutil.which("bishengir-compile")
         if compiler is None or Path(compiler).resolve() != expected.resolve():
             raise pytest.UsageError("bishengir-compile on PATH does not match --expected-bishengir")
-    profile = (config.getoption("costmodel_profile") or Path(
-        os.environ.get("TRITON_ASCEND_AUTO_SIMT_PROFILE") or DEFAULT_PROFILE)).resolve()
-    if not profile.is_file():
-        raise pytest.UsageError(f"CostModel profile does not exist: {profile}")
     output = output.resolve()
     if output.exists() and (not output.is_dir() or any(output.iterdir())):
         raise pytest.UsageError(f"CostModel output must be new or empty: {output}")
-    output.mkdir(parents=True, exist_ok=True)
-    snapshot = output / "costmodel_profile.json"
-    snapshot_profile(profile, snapshot)
-    plugin = CostModelPytest(output, snapshot, functional_only=config.getoption("costmodel_functional_only"))
+    functional_only = config.getoption("costmodel_functional_only")
+    mode = "functional" if functional_only else "collect_only" if config.option.collectonly else "costmodel"
+    env = os.environ.copy()
+    try:
+        snapshot = prepare_profile(config.getoption("costmodel_profile"), output / "costmodel_profile.json", env, mode=mode)
+    except (OSError, ValueError) as error:
+        raise pytest.UsageError(str(error)) from error
+    plugin = CostModelPytest(output, snapshot, functional_only=functional_only)
     config.pluginmanager.register(plugin, "costmodel-audit")
     config._costmodel_adapter = plugin
 
@@ -176,11 +173,13 @@ class CostModelPytest:
             if not passed and session.exitstatus == 0:
                 session.exitstatus = 1
         summary = {"status": status, "validation_scope": "functional" if self.functional_only else "auto",
+                   "profile_metadata": str(self.output / "profile_metadata.json"),
                    "maximum_absolute_relative_error": None if self.functional_only else 0.10,
                    "collected_case_count": len(session.items), "counts": counts, "results": results}
         write_json(self.output / "summary.json", summary)
         lines = ["# Pytest CostModel audit", "", f"Status: {status}", "",
                  "| Test | Precision | Timing | Status |", "|---|---|---|---|"]
+        lines[4:4] = profile_report_lines(self.output)
         for r in results:
             node = r["nodeid"].replace("|", "\\|").replace("\n", " ")
             timing = "Not checked" if self.functional_only else r['timing_pass']

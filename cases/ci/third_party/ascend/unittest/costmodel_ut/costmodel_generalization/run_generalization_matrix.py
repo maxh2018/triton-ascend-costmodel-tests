@@ -17,7 +17,7 @@ from datetime import datetime, timezone
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parents[4]
 sys.path.insert(0, str(HERE.parents[6]))
-from costmodel_tests.profiles import snapshot_profile
+from costmodel_tests.profiles import prepare_profile
 
 
 def capture(command: list[str], cwd: Path | None = None) -> dict:
@@ -121,8 +121,7 @@ def main() -> None:
     parser.add_argument(
         "--profile",
         type=Path,
-        default=Path(os.environ.get("TRITON_ASCEND_AUTO_SIMT_PROFILE") or
-                     HERE.parents[2] / "costmodel/profiles/simd_simt/ascend_950pr_simd_simt_v1.json"),
+        help="explicit baseline; otherwise use the profile shipped by the installed TA",
     )
     parser.add_argument(
         "--expected-bishengir",
@@ -216,17 +215,17 @@ def main() -> None:
     if args.output_root is None:
         parser.error("--output-root is required unless --list-cases is used")
     selected_cases = set(args.case)
-    args.output_root.mkdir(parents=True, exist_ok=True)
+    profile_snapshot = args.output_root / "costmodel_profile.json"
+    try:
+        args.profile = prepare_profile(args.profile, profile_snapshot, os.environ)
+    except (OSError, ValueError) as error:
+        parser.error(str(error))
     if args.profile_root:
         args.profile_root.mkdir(parents=True, exist_ok=True)
-    if not args.profile.is_file():
-        raise FileNotFoundError(args.profile)
     # The compiler and audit must use the same profile, even with --profile.
     os.environ["TRITON_ASCEND_AUTO_SIMT_PROFILE"] = str(args.profile.resolve())
     os.environ["PYTHONPATH"] = str(HERE) + (os.pathsep + os.environ["PYTHONPATH"]
                                          if os.environ.get("PYTHONPATH") else "")
-    profile_snapshot = args.output_root / "costmodel_profile.json"
-    snapshot_profile(args.profile, profile_snapshot)
     manifest_snapshot = args.output_root / "generalization_matrix.json"
     manifest_snapshot.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     # Freeze and record the two debug-affecting values once for all routes.
@@ -354,6 +353,7 @@ def main() -> None:
         "manifest_sha256": sha256(manifest_snapshot),
         "selected_cases": list(args.case),
         "profile_snapshot": str(profile_snapshot.resolve()),
+        "profile_metadata": str(args.output_root / "profile_metadata.json"),
         "profile_sha256": sha256(profile_snapshot),
         "execution": {
             "compile_workers": args.compile_workers,

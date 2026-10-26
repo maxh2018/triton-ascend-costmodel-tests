@@ -30,7 +30,8 @@ def main() -> None:
     parser.add_argument("--jobs", type=int, default=1, help="concurrent entries (default: 1)")
     parser.add_argument("--retries", type=int, default=3, help="extra attempts after failure (default: 3)")
     parser.add_argument("--output-root", type=Path, help="new or empty result directory")
-    parser.add_argument("--profile", type=Path)
+    parser.add_argument("--profile", type=Path,
+                        help="explicit baseline profile; default: compatible profile from the installed TA")
     parser.add_argument("--expected-bishengir", type=Path)
     parser.add_argument("--triton-root", type=Path, default=ROOT)
     parser.add_argument("--npuir-root", type=Path, default=ROOT / "third_party/ascend/AscendNPU-IR")
@@ -132,6 +133,7 @@ def main() -> None:
     # Save launcher failures too, even if the worker could not start its run.
     output.mkdir(parents=True, exist_ok=True)
     summary = {"status": "PASS" if passed else "FAIL", "category": default_category,
+               "profile_metadata": str(output / "profile_metadata.json"),
                "manifest_source": manifest_source,
                "manifest": str(manifest_path), "case_count": len(cases),
                "returncode": completed.returncode, "command": command,

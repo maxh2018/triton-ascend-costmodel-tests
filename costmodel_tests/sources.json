@@ -431,5 +431,6 @@
   },
   "local_manifest_workflow": "costmodel_tests/run.py selects a category default or explicit manifest; benchmark/pytest dispatch and retries share the same scheduler. CI all manifest remains unverified and opt-in.",
   "manifest_selection": "Explicit --manifest is authoritative and can combine drivers from different directories. Only when absent does --category choose a default; absent both defaults to cases/ci/manifest.json. Driver paths are relative to their manifest, not category.",
-  "local_pytest_compatibility": "Hardware predicates in tests that pass the current arch use costmodel_tests/compat.py to support installed backends with zero-argument or arch-argument is_compile_on_910_95. Source compiler contracts load the retained program_grid.py fixture from the pinned base commit."
+  "local_pytest_compatibility": "Hardware predicates in tests that pass the current arch use costmodel_tests/compat.py to support installed backends with zero-argument or arch-argument is_compile_on_910_95. Source compiler contracts load the retained program_grid.py fixture from the pinned base commit.",
+  "profile_policy": "Default profiles and compatibility schemas come from the actually loaded TA package. Repository profiles are explicit historical baselines. Preflight validates NPU targets, schemas and measurement references, then records TA fingerprints and a hash-verified runtime snapshot in profile_metadata.json."
 }

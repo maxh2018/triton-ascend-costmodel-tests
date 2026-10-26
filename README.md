@@ -10,6 +10,7 @@
 
 - [测试脚本使用说明](costmodel_tests/README.md)
 - [自定义测试用例提交规范](costmodel_tests/CUSTOM_CASES.md)
+- [Profile 的作用与版本管理](costmodel_tests/PROFILES.md)
 
 ## 获取与运行
 

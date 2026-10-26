@@ -13,6 +13,7 @@ import unittest
 from unittest.mock import patch
 
 from costmodel_tests.manifests import load_manifest
+from costmodel_tests.test_profile_resolution import fake_ta, write_test_profile
 from costmodel_tests.update_ci_manifests import build_manifests
 from costmodel_tests.test_batch import FAKE_WORKER
 
@@ -27,6 +28,10 @@ class ManifestTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
+        environment, _ = fake_ta(self.root)
+        environment_patch = patch.dict(os.environ, environment)
+        environment_patch.start()
+        self.addCleanup(environment_patch.stop)
 
     def test_event_timing_synchronizes_once_after_all_repeats(self):
         benchmark_paths = [
@@ -393,7 +398,7 @@ def test_add(n):
                 }]
             }))
         profile = self.root / 'profile.json'
-        profile.write_text('{}')
+        write_test_profile(profile)
         output = self.root / 'output'
         env = {
             **os.environ, 'PYTEST_DISABLE_PLUGIN_AUTOLOAD': '1',
@@ -452,6 +457,7 @@ def test_add(n):
                     }
                 }
             }))
+        write_test_profile(profile, json.loads(profile.read_text()))
         manifest = self.root / 'manifest.json'
         manifest.write_text(
             json.dumps({

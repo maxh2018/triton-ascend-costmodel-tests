@@ -13,6 +13,7 @@ import sys
 import tempfile
 import unittest
 from unittest.mock import patch
+from costmodel_tests.test_profile_resolution import fake_ta, write_test_profile
 
 ROOT = Path(__file__).resolve().parents[1]
 GENERAL = ROOT / "cases/ci/third_party/ascend/unittest/costmodel_ut/costmodel_generalization"
@@ -295,7 +296,8 @@ class OfflineTests(unittest.TestCase):
                     }]
                 }))
             profile = root / "profile.json"
-            profile.write_text("{}")
+            write_test_profile(profile)
+            environment, _ = fake_ta(root)
             for scope, count in (("auto", 1), ("all", 6)):
                 output = root / scope
 
@@ -335,7 +337,7 @@ class OfflineTests(unittest.TestCase):
                 if scope == "all":
                     command += ["--validation-scope", "all"]
                 with patch.object(sys, "argv", command), patch.object(module, "run_logged", side_effect=fake_run), \
-                        patch.dict("os.environ", {"TRITON_ASCEND_COMPILE_MODE": ""}), \
+                        patch.dict("os.environ", {**environment, "TRITON_ASCEND_COMPILE_MODE": ""}), \
                         contextlib.redirect_stdout(io.StringIO()):
                     with self.assertRaises(SystemExit) as stopped:
                         module.main()

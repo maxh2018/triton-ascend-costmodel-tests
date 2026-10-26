@@ -1,0 +1,3 @@
+# NPU dependencies (TA, torch_npu and CANN) are installed separately.
+pytest
+jsonschema>=4.18
