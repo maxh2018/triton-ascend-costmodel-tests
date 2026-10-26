@@ -118,6 +118,19 @@ active=SimpleNamespace(get_current_target=lambda: SimpleNamespace(
 
 class ResolutionTests(unittest.TestCase):
 
+    def test_profiles_bundled_beside_native_extension_are_discovered(self):
+        assets = self.installed.parent.parent
+        native_assets = self.installed.parents[
+            4] / "_C/ascend/costmodel_profiles"
+        native_assets.parent.mkdir(parents=True, exist_ok=True)
+        shutil.move(str(assets), str(native_assets))
+        self.installed = native_assets / "simd_simt/current.json"
+        prepare_profile(None, self.output, self.env)
+        metadata = read_json(self.output.parent / "profile_metadata.json")
+        self.assertEqual(metadata["source_path"], str(self.installed))
+        self.assertEqual(metadata["source_kind"], "installed_ta")
+        self.assertIsNone(metadata["runtimes"][0]["ta_distribution_version"])
+
     def test_snapshot_keeps_validated_bytes_if_source_changes(self):
         from costmodel_tests import profiles
         resolve = profiles.resolve_profile

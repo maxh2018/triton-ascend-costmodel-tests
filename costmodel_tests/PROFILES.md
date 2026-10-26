@@ -39,7 +39,8 @@ python costmodel_tests/run.py --device 0
 2. 显式环境变量 `TRITON_ASCEND_AUTO_SIMT_PROFILE`。
 3. 当前 Python 环境实际加载的 TA 所携带、且兼容所选 NPU 的 profile。
 
-默认从 TA 包的 `costmodel_profiles` 查找；editable 安装也支持实际 backend 源码旁的 `costmodel/profiles`。
+默认从实际加载的原生扩展旁的 `triton/_C/ascend/costmodel_profiles`、backend 包的 `costmodel_profiles` 查找；
+editable 安装也支持实际 backend 源码旁的 `costmodel/profiles`。
 不会自动读取测试仓的历史副本，也不会根据 `--triton-root` 猜测安装位置。
 若要自动选择，请先清除以前手动设置的环境变量：
 
@@ -79,7 +80,7 @@ python costmodel_tests/run.py --device 0 \
 |---|---|
 | `source_kind`、`source_path` | 自动发现还是显式覆盖，以及原始位置 |
 | `profile_version`、`schema_version`、`source_sha256` | 原始参数的版本及 SHA256 |
-| `runtimes` | 实际加载的 TA/Triton 版本、路径、代码/原生库指纹和每张卡的目标 |
+| `runtimes` | 实际加载的 TA/Triton 版本（含可确认归属的 wheel 构建版本）、路径、代码/原生库指纹和每张卡的目标 |
 | `artifacts` | 本次完整快照中各文件的 SHA256 |
 
 快照包含运行时读取的全部参数及校验 schema：

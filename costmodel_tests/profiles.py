@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 import fnmatch
 import hashlib
 import importlib
+from importlib import metadata as package_metadata
 import json
 import os
 from pathlib import Path
@@ -53,6 +54,11 @@ def fingerprint(path):
     }
 
 
+def runtime_version(runtime):
+    return (runtime.get("ta_distribution_version") or runtime.get("ta_version")
+            or runtime.get("triton_version"))
+
+
 def installed_runtime():
     """Executed in a fresh interpreter with the selected device environment."""
     triton = importlib.import_module("triton")
@@ -62,7 +68,13 @@ def installed_runtime():
     if target.backend not in ("npu", "ascend"):
         raise ValueError(f"expected an Ascend NPU target, got {target!r}")
     package = Path(ascend.__file__).resolve().parent
-    roots = [package / "costmodel_profiles", package / "costmodel/profiles"]
+    native = importlib.import_module("triton._C.libtriton")
+    roots = []
+    if getattr(native, "__file__", None):
+        roots.append(
+            Path(native.__file__).resolve().parent /
+            "ascend/costmodel_profiles")
+    roots += [package / "costmodel_profiles", package / "costmodel/profiles"]
     # Editable installations may load the actual backend source directory.
     if package.name == "backend" and package.parent.name == "ascend":
         roots.append(package.parent / "costmodel/profiles")
@@ -70,12 +82,22 @@ def installed_runtime():
         Path(triton.__file__),
         Path(ascend.__file__), package / "compiler.py"
     ]
-    native = importlib.import_module("triton._C.libtriton")
     if getattr(native, "__file__", None):
         files.append(Path(native.__file__))
+    distribution_version = None
+    try:
+        distribution = package_metadata.distribution("triton-ascend")
+        owned_backend = Path(
+            distribution.locate_file(
+                "triton/backends/ascend/__init__.py")).resolve()
+        if owned_backend == Path(ascend.__file__).resolve():
+            distribution_version = distribution.version
+    except package_metadata.PackageNotFoundError:
+        pass
     return {
         "triton_version": getattr(triton, "__version__", None),
         "ta_version": getattr(ascend, "__version__", None),
+        "ta_distribution_version": distribution_version,
         "triton_package": str(Path(triton.__file__).resolve()),
         "ta_package": str(package),
         "files": [fingerprint(path) for path in files if path.is_file()],
@@ -202,8 +224,7 @@ def resolve_profile(requested, env, devices=None):
     schemas = next(
         (pair for pair in pairs if all(path.is_file() for path in pair)), None)
     if schemas is None:
-        version = runtimes[0].get("ta_version") or runtimes[0].get(
-            "triton_version")
+        version = runtime_version(runtimes[0])
         raise ValueError(
             f"The installed TA {version} at {runtimes[0]['ta_package']} "
             "does not ship CostModel profile schemas. Install a TA build "
@@ -430,7 +451,7 @@ def profile_report_lines(output):
     runtime = metadata["runtimes"][0]
     return [
         "## Profile and TA", "",
-        f"- TA: `{runtime.get('ta_version') or runtime.get('triton_version')}`; `{runtime['ta_package']}`",
+        f"- TA: `{runtime_version(runtime)}`; `{runtime['ta_package']}`",
         f"- Hardware: `{', '.join(item['target']['arch'] for item in metadata['runtimes'])}`",
         f"- Profile: `{metadata['profile_version']}` ({metadata['source_kind']})",
         f"- Original profile SHA256: `{metadata['source_sha256']}`",
