@@ -87,13 +87,14 @@ function setupJson(){
 function show(index){
  selected=index;const run=reports[index],c=run.counts;$('runSelect').value=String(index);$('runStatus').replaceWith(Object.assign(badge(run.status),{id:'runStatus'}));
  $('runDate').textContent=run.started_at.replace('T',' ').replace('+08:00','');$('runNote').textContent=run.label||('设备 '+(run.device??'—'));
- const message=run.message||(run.status==='RUNNING'?'本批次尚无结束记录；请刷新查看进度，或检查运行日志确认进程状态。':'');$('banner').textContent=message;$('banner').classList.toggle('hidden',!message);
+ const messages=[run.message,...(run.warnings||[])].filter(Boolean);const message=messages.join('\n\n')||(run.status==='RUNNING'?'本批次尚无结束记录；请刷新查看进度，或检查运行日志确认进程状态。':'');$('banner').textContent=message;$('banner').classList.toggle('hidden',!message);
  $('passed').textContent=(c.PASS||0)+' / '+run.total;$('precision').textContent=c.PRECISION_FAIL||0;$('timing').textContent=c.TIME_FAIL||0;
  $('abnormal').textContent=(c.EXECUTION_FAIL||0)+(c.BLOCKED||0)+(c.UNVERIFIED||0);$('pending').textContent=c.NOT_RUN||0;
  $('metadata').replaceChildren();
- const items=[['TA 版本',run.ta_version||'尚未完成环境预检'],['测试仓提交',(run.git.sha||'—')+(run.git.dirty?' · 有本地修改':'')],['Profile',run.profile_version||'—'],['Profile SHA256',run.profile_sha256||'—'],['验收协议','Auto · Profiler · 3 个测量进程 · APE ≤ 10%'],['设备状态',(run.health.status||'未记录')+' · NPU '+(run.device??'—')]];
+ const occupancy=run.occupancy||{},occupancyText=occupancy.status==='BUSY'?'检测到 '+(occupancy.processes||[]).length+' 个占用进程':occupancy.status==='IDLE'?'未检测到占用进程':occupancy.status==='UNKNOWN'?'未能确认':'未记录';
+ const items=[['TA 版本',run.ta_version||'尚未完成环境预检'],['测试仓提交',(run.git.sha||'—')+(run.git.dirty?' · 有本地修改':'')],['Profile',run.profile_version||'—'],['Profile SHA256',run.profile_sha256||'—'],['验收协议','Auto · Profiler · 3 个测量进程 · APE ≤ 10%'],['设备状态',(run.health.status||'未记录')+' · NPU '+(run.device??'—')],['启动前占用快照',occupancyText]];
  for(const [label,value] of items){const div=node('div');div.append(node('dt',label),node('dd',value));$('metadata').append(div)}
- $('artifacts').replaceChildren();for(const [key,label] of [['log','完整运行日志'],['metadata','运行信息'],['profile','Profile 快照信息']]){if(run.links[key]){if($('artifacts').childNodes.length)$('artifacts').append(node('span',' · '));$('artifacts').append(artifactLink(run,run.links[key],label))}}
+ $('artifacts').replaceChildren();for(const [key,label] of [['log','完整运行日志'],['metadata','运行信息'],['profile','Profile 快照信息'],['occupancy','占用快照']]){if(run.links[key]){if($('artifacts').childNodes.length)$('artifacts').append(node('span',' · '));$('artifacts').append(artifactLink(run,run.links[key],label))}}
  document.querySelectorAll('#history button').forEach((b,i)=>b.classList.toggle('active',i===index));updateTable();setupJson();
 }
 if(!reports.length){$('empty').classList.remove('hidden');$('content').classList.add('hidden');$('runSelect').disabled=true}else{

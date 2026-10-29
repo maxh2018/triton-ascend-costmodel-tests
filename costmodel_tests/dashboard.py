@@ -413,6 +413,10 @@ def build_report(run):
         metadata.get("git", {}),
         "health":
         metadata.get("health", {}),
+        "occupancy":
+        metadata.get("occupancy", {}),
+        "warnings":
+        metadata.get("warnings", []),
         "manifest_sha256":
         metadata.get("manifest_sha256"),
         "ta_version":
@@ -426,6 +430,7 @@ def build_report(run):
             "log": link(run, run / "nightly.log"),
             "metadata": link(run, run / "run.json"),
             "profile": link(run, run / "raw/profile_metadata.json"),
+            "occupancy": link(run, run / "device_occupancy.json"),
             "summary": "dashboard.json",
         },
     }

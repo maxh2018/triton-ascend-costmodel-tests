@@ -80,9 +80,10 @@ class NightlyTests(unittest.TestCase):
                                     expected_bishengir=None,
                                     triton_root=None,
                                     npuir_root=None,
+                                    require_idle_devices=False,
                                     label="offline fixture")
 
-    def run_job(self, mode="pass", health=None):
+    def run_job(self, mode="pass", health=None, occupancy=None):
         with patch.dict(os.environ,
                         {"NIGHTLY_FAKE_MODE": mode}), redirect_stdout(
                             io.StringIO()):
@@ -92,6 +93,11 @@ class NightlyTests(unittest.TestCase):
                                        "ok": True,
                                        "status": "OK",
                                        "output": "OK"
+                                   },
+                                   occupancy_check=lambda _: occupancy or {
+                                       "status": "IDLE",
+                                       "processes": [],
+                                       "output": "idle"
                                    })
         run = sorted((self.args.output_root / "runs").iterdir())[-1]
         return code, run, dashboard.read_json(run / "dashboard.json")
@@ -105,9 +111,107 @@ class NightlyTests(unittest.TestCase):
                             ("--measurement-processes", "3"), ("--jobs", "1"),
                             ("--repeats", "7"), ("--warmup", "3")]:
             self.assertEqual(command[command.index(flag) + 1], value)
-        self.assertIn("--require-idle-devices", command)
+        self.assertNotIn("--require-idle-devices", command)
         self.assertEqual(report["rows"][0]["attempts"], 2)
         self.assertTrue((self.args.output_root / "index.html").is_file())
+
+    def test_busy_device_warns_and_runs_by_default(self):
+        busy = {
+            "status": "BUSY",
+            "processes": [{
+                "pid": 12345,
+                "name": "python",
+                "memory_mb": "512"
+            }],
+            "output": "busy"
+        }
+        code, run, report = self.run_job(occupancy=busy)
+        self.assertEqual(code, 0)
+        self.assertEqual(report["status"], "PASS")
+        self.assertIn("12345", report["warnings"][0])
+        self.assertEqual(report["occupancy"]["processes"], busy["processes"])
+        self.assertTrue((run / "raw/batch_summary.json").is_file())
+        self.assertIn("WARNING",
+                      (run / "nightly.log").read_text(encoding="utf-8"))
+        self.assertEqual(dashboard.read_json(run / "device_occupancy.json"),
+                         busy)
+
+    def test_busy_device_only_blocks_in_explicit_strict_mode(self):
+        self.args.require_idle_devices = True
+        code, run, report = self.run_job(occupancy={
+            "status": "BUSY",
+            "processes": [{
+                "pid": 12345
+            }],
+            "output": "busy"
+        })
+        self.assertEqual(code, 1)
+        self.assertEqual(report["status"], "BLOCKED")
+        self.assertFalse((run / "raw").exists())
+        self.assertIn("--require-idle-devices",
+                      dashboard.read_json(run / "run.json")["command"])
+
+    def test_unknown_occupancy_warns_and_continues_by_default(self):
+        code, _, report = self.run_job(occupancy={
+            "status": "UNKNOWN",
+            "processes": [],
+            "output": "query timeout"
+        })
+        self.assertEqual(code, 0)
+        self.assertIn("未能确认", report["warnings"][0])
+        self.assertEqual(report["status"], "PASS")
+
+    def test_unknown_occupancy_blocks_only_in_strict_mode(self):
+        self.args.require_idle_devices = True
+        code, _, report = self.run_job(occupancy={
+            "status": "UNKNOWN",
+            "processes": [],
+            "output": "query timeout"
+        })
+        self.assertEqual(code, 1)
+        self.assertEqual(report["status"], "BLOCKED")
+
+    def test_busy_warning_does_not_relax_timing_acceptance(self):
+        code, _, report = self.run_job("time",
+                                       occupancy={
+                                           "status": "BUSY",
+                                           "processes": [{
+                                               "pid": 12345
+                                           }],
+                                           "output": "busy"
+                                       })
+        self.assertEqual(code, 1)
+        self.assertEqual(report["counts"], {"TIME_FAIL": 2})
+        self.assertTrue(report["warnings"])
+
+    def test_process_table_parser_supports_actual_four_column_output(self):
+        text = '''
+| NPU ID | Name | Health | Power(W) |
+| 1 | Ascend950PR | OK | 278 |
+| NPU ID | Process id | Process name | Process memory(MB) |
+| No running processes found in NPU 0 |
+| 1 | 1058350 | | 2084 |
+| 1 | 1059767 | python | 1562 |
+'''
+        processes, known = nightly.parse_device_processes(text, "1")
+        self.assertTrue(known)
+        self.assertEqual([p["pid"] for p in processes], [1058350, 1059767])
+        self.assertEqual(processes[0]["memory_mb"], "2084")
+        self.assertEqual(processes[0]["name"], "")
+        self.assertEqual(nightly.parse_device_processes(text, "0"), ([], True))
+        self.assertEqual(
+            nightly.parse_device_processes(
+                "| No running processes found in NPU 10 |", "1"), ([], False))
+
+    def test_process_table_parser_uses_pid_column_in_chip_format(self):
+        text = '''
+| NPU ID | Chip ID | Process id | Process name | Process memory(MB) |
+| 0 | 0 | 1234 | python | 100 |
+| 1 | 0 | 5678 | python | 200 |
+'''
+        processes, known = nightly.parse_device_processes(text, "1")
+        self.assertTrue(known)
+        self.assertEqual([p["pid"] for p in processes], [5678])
 
     def test_event_only_pass_is_not_nightly_acceptance(self):
         code, _, report = self.run_job("event")

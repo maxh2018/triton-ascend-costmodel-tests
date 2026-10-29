@@ -76,6 +76,84 @@ def check_device(device):
         return {"status": "Unavailable", "ok": False, "output": str(error)}
 
 
+def parse_device_processes(output, device):
+    """Parse the process table, not utilization/board rows; support chip columns."""
+    columns = None
+    processes = []
+    recognized = False
+    for line in output.splitlines():
+        if re.search(
+                r"No running processes found in NPU\s+" +
+                re.escape(str(device)) + r"\b", line):
+            recognized = True
+        if not line.lstrip().startswith("|"):
+            continue
+        cells = [cell.strip() for cell in line.split("|")[1:-1]]
+        header = [re.sub(r"\s+", " ", cell).lower() for cell in cells]
+        pid_index = next((i for i, cell in enumerate(header)
+                          if cell in ("process id", "process pid", "pid")),
+                         None)
+        if pid_index is not None and "npu id" in header:
+            columns = {
+                "device":
+                header.index("npu id"),
+                "pid":
+                pid_index,
+                "name":
+                next((i for i, cell in enumerate(header)
+                      if cell == "process name"), None),
+                "memory":
+                next((i for i, cell in enumerate(header) if "memory" in cell),
+                     None)
+            }
+            recognized = True
+            continue
+        if columns is None or len(cells) <= max(
+                i for i in columns.values() if i is not None):
+            continue
+        if cells[columns["device"]] != str(
+                device) or not cells[columns["pid"]].isdigit():
+            continue
+        processes.append({
+            "pid":
+            int(cells[columns["pid"]]),
+            "name":
+            cells[columns["name"]] if columns["name"] is not None else "",
+            "memory_mb":
+            cells[columns["memory"]] if columns["memory"] is not None else None
+        })
+    return processes, recognized
+
+
+def check_occupancy(device):
+    snapshot = {
+        "device": device,
+        "scope": "before_run",
+        "checked_at": timestamp(),
+        "status": "UNKNOWN",
+        "processes": [],
+        "output": ""
+    }
+    executable = shutil.which("npu-smi")
+    if not executable:
+        snapshot["output"] = "npu-smi 不在 PATH"
+        return snapshot
+    try:
+        p = subprocess.run([executable, "info"],
+                           capture_output=True,
+                           text=True,
+                           timeout=15)
+        snapshot["output"] = p.stdout + p.stderr
+        processes, recognized = parse_device_processes(snapshot["output"],
+                                                       device)
+        snapshot["processes"] = processes
+        if p.returncode == 0 and recognized:
+            snapshot["status"] = "BUSY" if processes else "IDLE"
+    except (OSError, subprocess.TimeoutExpired) as error:
+        snapshot["output"] = str(error)
+    return snapshot
+
+
 def stop_process(process):
     if process.poll() is not None:
         return
@@ -117,13 +195,13 @@ def output_lock(output):
             release()
 
 
-def execute(args, runner=None, device_check=None):
+def execute(args, runner=None, device_check=None, occupancy_check=None):
     """The injectable runner/device probe support real CPU-only integration tests."""
     with output_lock(args.output_root.resolve()):
-        return _execute(args, runner, device_check)
+        return _execute(args, runner, device_check, occupancy_check)
 
 
-def _execute(args, runner, device_check):
+def _execute(args, runner, device_check, occupancy_check):
     manifest = load_manifest(args.manifest)
     if not manifest["cases"]:
         raise ValueError("manifest is empty")
@@ -143,9 +221,12 @@ def _execute(args, runner, device_check):
         str(run / "raw"), "--validation-scope", "auto", "--timing-source",
         "profiler", "--measurement-processes", "3", "--warmup", "3",
         "--repeats", "7", "--jobs", "1", "--compile-workers", "1",
-        "--case-batch-size", "1", "--require-idle-devices", "--retries",
+        "--case-batch-size", "1", "--retries",
         str(args.retries)
     ]
+    strict_idle = getattr(args, "require_idle_devices", False)
+    if strict_idle:
+        command.append("--require-idle-devices")
     for option, value in (("--profile", args.profile),
                           ("--expected-bishengir", args.expected_bishengir),
                           ("--triton-root", args.triton_root),
@@ -167,12 +248,14 @@ def _execute(args, runner, device_check):
         "command": command,
         "returncode": None,
         "error": None,
+        "warnings": [],
         "policy": {
             "timing_source": "profiler",
             "validation_scope": "auto",
             "measurement_processes": 3,
             "maximum_ape_percent": 10,
-            "jobs": 1
+            "jobs": 1,
+            "require_idle_devices": strict_idle,
         }
     }
     write_json(run / "run.json", metadata)
@@ -189,10 +272,35 @@ def _execute(args, runner, device_check):
                             returncode=2,
                             error="NPU 预检未通过：" + health["output"])
         else:
+            occupancy = (occupancy_check or check_occupancy)(args.device)
+            metadata["occupancy"] = occupancy
+            write_json(run / "device_occupancy.json", occupancy)
+            if occupancy["status"] == "BUSY":
+                pids = ", ".join(str(p["pid"]) for p in occupancy["processes"])
+                warning = f"启动前检测到 NPU {args.device} 有 {len(occupancy['processes'])} 个占用进程（PID: {pids}）。并行任务可能影响计时；当前按默认策略继续运行。"
+            elif occupancy["status"] != "IDLE":
+                warning = f"未能确认 NPU {args.device} 的启动前占用情况；当前按默认策略继续运行。详情见 device_occupancy.json。"
+            else:
+                warning = None
+            if warning and strict_idle:
+                metadata.update(
+                    state="BLOCKED",
+                    returncode=2,
+                    error="已启用 --require-idle-devices，设备非空闲或占用情况无法确认，未启动测试。")
+                metadata["warnings"].append(warning.replace(
+                    "当前按默认策略继续运行。", ""))
+            elif warning:
+                metadata["warnings"].append(warning)
+                print("WARNING: " + warning, flush=True)
+            write_json(run / "run.json", metadata)
+        if metadata["state"] != "BLOCKED":
             print(
                 "Running CI acceptance: Auto / Profiler / 3 measurements / APE <= 10%",
                 flush=True)
             with (run / "nightly.log").open("w", encoding="utf-8") as log:
+                for warning in metadata["warnings"]:
+                    log.write("WARNING: " + warning + "\n")
+                log.flush()
                 process = subprocess.Popen(
                     command,
                     cwd=ROOT,
@@ -264,6 +372,12 @@ def main():
                         default="",
                         help="optional build or experiment label")
     parser.add_argument("--profile", type=Path)
+    parser.add_argument(
+        "--require-idle-devices",
+        action="store_true",
+        help=
+        "optional strict mode: block busy/unknown devices; default warns and continues"
+    )
     parser.add_argument("--expected-bishengir", type=Path)
     parser.add_argument("--triton-root", type=Path)
     parser.add_argument("--npuir-root", type=Path)

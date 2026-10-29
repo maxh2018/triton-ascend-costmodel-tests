@@ -29,7 +29,7 @@ nohup python -u costmodel_tests/nightly.py --device 1 \
 | 测量次数 | 3 个独立进程，选取中位结果 |
 | 预热 / 重复 | 3 / 7 |
 | 通过标准 | 计算精度通过，且逐用例 APE ≤10% |
-| 并发 | 单卡、逐 case 串行；开始前检查卡是否被其他进程占用 |
+| 并发 | 单卡、逐 case 串行；启动前记录占用情况，发现其他进程时默认警告并继续 |
 | 重试 | 默认失败后额外重试 3 次，只重试失败 case；保留每次尝试 |
 | 时限 | 整轮最多 8 小时；超时后保存已有结果，标记未完成 |
 
@@ -53,6 +53,7 @@ python costmodel_tests/nightly.py --device 1 --retries 0
 | `--output-root` | `costmodel_test_results/nightly` | 固定保存目录；每天继续使用同一目录，历史不会被覆盖 |
 | `--label` | 空 | 当天的构建号或备注 |
 | `--retries` | `3` | 失败后的额外重试次数 |
+| `--require-idle-devices` | 关闭 | 可选严格检查：设备有占用进程或无法确认占用时，不启动测试 |
 | `--timeout-hours` | `8` | 整轮最长运行时间 |
 | `--manifest` | CI 100-case 清单 | 需要验证另一份 benchmark 清单时显式指定 |
 | `--profile` | 当前安装 TA 的 profile | 指定历史参数基线 |
@@ -60,6 +61,20 @@ python costmodel_tests/nightly.py --device 1 --retries 0
 | `--triton-root` / `--npuir-root` | 沿用测试入口默认值 | 可填写被测编译器源码目录，用于记录源码状态 |
 
 **退出码：** `0` 表示全部用例完成正式验收并通过；非 `0` 表示未通过或未完成。以看板中的分类判断原因。
+
+### 卡被占用时的处理
+
+默认会打印警告、继续运行，并在看板、`run.json`、`nightly.log` 中保留说明。
+`device_occupancy.json` 保存启动前的占用进程 PID、名称、显存信息及 `npu-smi` 原始输出。
+这是**启动前快照**，不是整个测试期间的持续监控；开发人员自行决定是否采信可能受并行任务影响的计时结果。
+
+警告本身不改变用例验收标准或退出码。若需要严格要求空闲卡，显式执行：
+
+```bash
+python costmodel_tests/nightly.py --device 1 --require-idle-devices
+```
+
+设备 `Critical`、TA/profile 不兼容等无法正常执行测试的检查仍会保留。
 
 ## 2. 第二天怎么看
 
@@ -130,6 +145,7 @@ nightly/
     ├── dashboard.json         # 看板使用的逐用例汇总
     ├── case_json/             # 各用例的离线 JSON 浏览页
     ├── run.json               # 执行命令、时间、版本及设备检查
+    ├── device_occupancy.json  # 启动前占用快照（健康检查通过后生成）
     ├── nightly_manifest.json  # 本轮清单快照
     ├── nightly.log            # 完整测试入口日志（已启动测试时生成）
     └── raw/                   # 原始运行、审计、profile 快照和重试记录
