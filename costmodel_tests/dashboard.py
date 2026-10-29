@@ -409,6 +409,8 @@ def build_report(run):
         "",
         "device":
         metadata.get("device"),
+        "jobs":
+        metadata.get("policy", {}).get("jobs", 1),
         "total":
         len(rows),
         "counts":

@@ -202,6 +202,9 @@ def execute(args, runner=None, device_check=None, occupancy_check=None):
 
 
 def _execute(args, runner, device_check, occupancy_check):
+    jobs = getattr(args, "jobs", 1)
+    if jobs < 1:
+        raise ValueError("--jobs must be positive")
     manifest = load_manifest(args.manifest)
     if not manifest["cases"]:
         raise ValueError("manifest is empty")
@@ -220,7 +223,7 @@ def _execute(args, runner, device_check, occupancy_check):
         str(snapshot), "--device", args.device, "--output-root",
         str(run / "raw"), "--validation-scope", "auto", "--timing-source",
         "profiler", "--measurement-processes", "3", "--warmup", "3",
-        "--repeats", "7", "--jobs", "1", "--compile-workers", "1",
+        "--repeats", "7", "--jobs", str(jobs), "--compile-workers", "1",
         "--case-batch-size", "1", "--retries",
         str(args.retries)
     ]
@@ -254,7 +257,7 @@ def _execute(args, runner, device_check, occupancy_check):
             "validation_scope": "auto",
             "measurement_processes": 3,
             "maximum_ape_percent": 10,
-            "jobs": 1,
+            "jobs": jobs,
             "require_idle_devices": strict_idle,
         }
     }
@@ -262,6 +265,12 @@ def _execute(args, runner, device_check, occupancy_check):
     generate(output)
     print(f"Run: {run}", flush=True)
     print(f"Dashboard: {output / 'index.html'}", flush=True)
+    if jobs > 1:
+        warning = (f"本轮最多 {jobs} 个 case 共用 NPU {args.device} 并发执行。"
+                   "同卡资源争用可能影响实测耗时和 APE；需要比较独立耗时时使用 --jobs 1。")
+        metadata["warnings"].append(warning)
+        print("WARNING: " + warning, flush=True)
+        write_json(run / "run.json", metadata)
     process = None
     try:
         health = (device_check or check_device)(args.device)
@@ -295,7 +304,7 @@ def _execute(args, runner, device_check, occupancy_check):
             write_json(run / "run.json", metadata)
         if metadata["state"] != "BLOCKED":
             print(
-                "Running CI acceptance: Auto / Profiler / 3 measurements / APE <= 10%",
+                f"Running CI acceptance: Auto / Profiler / 3 measurements / APE <= 10% / jobs={jobs}",
                 flush=True)
             with (run / "nightly.log").open("w", encoding="utf-8") as log:
                 for warning in metadata["warnings"]:
@@ -371,6 +380,10 @@ def main():
                         type=int,
                         default=3,
                         help="extra attempts for failed cases only")
+    parser.add_argument("--jobs",
+                        type=int,
+                        default=1,
+                        help="concurrent cases sharing --device (default: 1)")
     parser.add_argument("--timeout-hours",
                         type=float,
                         default=8,
@@ -391,6 +404,8 @@ def main():
     args = parser.parse_args()
     if not re.fullmatch(r"[0-9]+", args.device):
         parser.error("--device must be one numeric NPU ID")
+    if args.jobs < 1:
+        parser.error("--jobs must be positive")
     if args.retries < 0 or not (0 < args.timeout_hours <= 168):
         parser.error(
             "--retries must be nonnegative; --timeout-hours must be in (0, 168]"

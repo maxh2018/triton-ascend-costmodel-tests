@@ -92,7 +92,7 @@ function show(index){
  $('abnormal').textContent=(c.EXECUTION_FAIL||0)+(c.BLOCKED||0)+(c.UNVERIFIED||0);$('pending').textContent=c.NOT_RUN||0;
  $('metadata').replaceChildren();
  const occupancy=run.occupancy||{},occupancyText=occupancy.status==='BUSY'?'检测到 '+(occupancy.processes||[]).length+' 个占用进程':occupancy.status==='IDLE'?'未检测到占用进程':occupancy.status==='UNKNOWN'?'未能确认':'未记录';
- const items=[['TA 版本',run.ta_version||'尚未完成环境预检'],['测试仓提交',(run.git.sha||'—')+(run.git.dirty?' · 有本地修改':'')],['Profile',run.profile_version||'—'],['Profile SHA256',run.profile_sha256||'—'],['验收协议','Auto · Profiler · 3 个测量进程 · APE ≤ 10%'],['设备状态',(run.health.status||'未记录')+' · NPU '+(run.device??'—')],['启动前占用快照',occupancyText]];
+ const items=[['TA 版本',run.ta_version||'尚未完成环境预检'],['测试仓提交',(run.git.sha||'—')+(run.git.dirty?' · 有本地修改':'')],['Profile',run.profile_version||'—'],['Profile SHA256',run.profile_sha256||'—'],['验收协议','Auto · Profiler · 3 个测量进程 · APE ≤ 10%'],['用例并发',(run.jobs??1)+' 个 case · 共用 NPU '+(run.device??'—')],['设备状态',(run.health.status||'未记录')+' · NPU '+(run.device??'—')],['启动前占用快照',occupancyText]];
  for(const [label,value] of items){const div=node('div');div.append(node('dt',label),node('dd',value));$('metadata').append(div)}
  $('artifacts').replaceChildren();for(const [key,label] of [['log','完整运行日志'],['metadata','运行信息'],['profile','Profile 快照信息'],['occupancy','占用快照']]){if(run.links[key]){if($('artifacts').childNodes.length)$('artifacts').append(node('span',' · '));$('artifacts').append(artifactLink(run,run.links[key],label))}}
  document.querySelectorAll('#history button').forEach((b,i)=>b.classList.toggle('active',i===index));updateTable();setupJson();

@@ -75,6 +75,7 @@ class NightlyTests(unittest.TestCase):
         self.args = SimpleNamespace(manifest=self.manifest,
                                     output_root=self.root / "nightly",
                                     device="1",
+                                    jobs=1,
                                     retries=3,
                                     timeout_hours=1,
                                     profile=None,
@@ -108,6 +109,7 @@ class NightlyTests(unittest.TestCase):
         code, run, report = self.run_job()
         self.assertEqual(code, 0)
         self.assertEqual(report["counts"], {"PASS": 2})
+        self.assertEqual(report["jobs"], 1)
         command = dashboard.read_json(run / "run.json")["command"]
         for flag, value in [("--timing-source", "profiler"),
                             ("--measurement-processes", "3"), ("--jobs", "1"),
@@ -116,6 +118,38 @@ class NightlyTests(unittest.TestCase):
         self.assertNotIn("--require-idle-devices", command)
         self.assertEqual(report["rows"][0]["attempts"], 2)
         self.assertTrue((self.args.output_root / "index.html").is_file())
+
+    def test_parallel_jobs_share_one_device_and_are_recorded(self):
+        self.args.jobs = 4
+        code, run, report = self.run_job()
+        self.assertEqual(code, 0)
+        metadata = dashboard.read_json(run / "run.json")
+        command = metadata["command"]
+        for flag, value in [("--jobs", "4"), ("--device", "1"),
+                            ("--timing-source", "profiler"),
+                            ("--measurement-processes", "3"),
+                            ("--case-batch-size", "1")]:
+            self.assertEqual(command[command.index(flag) + 1], value)
+        self.assertNotIn("--devices", command)
+        self.assertEqual(metadata["policy"]["jobs"], 4)
+        self.assertEqual(report["jobs"], 4)
+        self.assertIn("4 个 case", report["warnings"][0])
+        self.assertIn("资源争用", self.console)
+        self.assertIn("4 个 case", (run / "nightly.log").read_text(encoding="utf-8"))
+
+    def test_parallel_warning_does_not_relax_timing_acceptance(self):
+        self.args.jobs = 4
+        code, _, report = self.run_job("time")
+        self.assertEqual(code, 1)
+        self.assertEqual(report["counts"], {"TIME_FAIL": 2})
+        self.assertEqual(report["jobs"], 4)
+
+    def test_nonpositive_jobs_rejected_before_starting_runner(self):
+        for jobs in (0, -1):
+            with self.subTest(jobs=jobs):
+                self.args.jobs = jobs
+                with self.assertRaisesRegex(ValueError, "--jobs must be positive"):
+                    self.run_job()
 
     def test_busy_device_warns_and_runs_by_default(self):
         busy = {

@@ -39,7 +39,7 @@ nohup python -u costmodel_tests/nightly.py --device 1 \
 | 测量次数 | 3 个独立进程，选取中位结果 |
 | 预热 / 重复 | 3 / 7 |
 | 通过标准 | 计算精度通过，且逐用例 APE ≤10% |
-| 并发 | 单卡、逐 case 串行；启动前记录占用情况，发现其他进程时默认警告并继续 |
+| 并发 | 默认单卡串行；`--jobs N` 让最多 N 个 case 共用同一张卡并发执行 |
 | 重试 | 默认失败后额外重试 3 次，只重试失败 case；保留每次尝试 |
 | 时限 | 整轮最多 8 小时；超时后保存已有结果，标记未完成 |
 
@@ -55,11 +55,20 @@ python costmodel_tests/nightly.py --device 1 \
 
 # 首次结果自检，不自动重试
 python costmodel_tests/nightly.py --device 1 --retries 0
+
+# 单卡并发：最多同时执行 4 个 case，继续生成同一套看板
+python costmodel_tests/nightly.py --device 1 --jobs 4 \
+  --label "TA-test" --output-root /path/to/nightly
 ```
+
+`--jobs 4` 表示 4 个用例共享 `--device` 指定的卡，每个用例仍执行 3 轮独立 Profiler 测量。
+同卡并发可能影响耗时和 APE，看板会展示并发数及警告；对比独立耗时时使用默认 `--jobs 1`。
+原来正在运行的批次不会中途改变并发数，需要结束该批次后重新启动。
 
 | 参数 | 默认值 | 用途 |
 |---|---|---|
-| `--device` | 必填 | 本轮独占使用的物理卡号 |
+| `--device` | 必填 | 本轮所有用例共用的物理卡号 |
+| `--jobs` | `1` | 最多同时运行的 case 数量；设为 `4` 开启单卡 4 并发 |
 | `--output-root` | `costmodel_test_results/nightly` | 固定保存目录；每天继续使用同一目录，历史不会被覆盖 |
 | `--label` | 空 | 当天的构建号或备注 |
 | `--retries` | `3` | 失败后的额外重试次数 |
