@@ -4,7 +4,17 @@
 
 ## 1. 测试同事每晚执行
 
-进入仓库，加载当天要验证的 TA、CANN 和 bishengir 环境，然后执行：
+进入仓库，加载当天要验证的 TA、CANN 和 bishengir 环境。
+首次使用这个 Python/conda 环境时，先安装测试辅助依赖：
+
+```bash
+python -m pip install -r costmodel_tests/requirements.txt
+```
+
+其中 `jsonschema` 用于校验 profile 格式；这些依赖需要安装到实际运行夜测的环境中。
+更换 conda 环境后也需要检查，另一个环境已安装不代表当前环境可用。
+
+然后执行夜测：
 
 ```bash
 python costmodel_tests/nightly.py --device 1
