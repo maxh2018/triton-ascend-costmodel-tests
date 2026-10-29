@@ -1,5 +1,6 @@
 """Exercise nightly subprocesses and dashboard verdicts without NPU dependencies."""
 from contextlib import redirect_stdout
+import hashlib
 import io
 import json
 import os
@@ -191,6 +192,122 @@ class NightlyTests(unittest.TestCase):
         html = dashboard.render([report])
         self.assertNotIn(report["rows"][0]["name"], html)
         self.assertIn("\\u003c/script", html)
+
+    def test_case_json_view_preserves_full_numbers_and_original_bytes(self):
+        _, run, _ = self.run_job()
+        matrix = dashboard.read_json(run / "raw/matrix_summary.json")
+        directory = Path(matrix["records"][0]["evidence_dir"])
+        original = b'{\r\n  "count": 18446744073709551615, "payload": "all_fields_visible"\r\n}\r\n'
+        (directory / "route.json").write_bytes(original)
+        reports = dashboard.generate(self.args.output_root)
+        row = reports[0]["rows"][0]
+        self.assertTrue((run / row["json_view"]).is_file())
+        html = (run / row["json_view"]).read_text(encoding="utf-8")
+        data = json.loads(
+            html.split('<script id="case-json-data" type="application/json">')
+            [1].split('</script>')[0])
+        route = data["documents"][0]
+        self.assertIn("route.json", route["name"])
+        self.assertIn("18446744073709551615", route["text"])
+        self.assertEqual(route["raw"].encode(), original)
+        self.assertEqual(route["sha256"], hashlib.sha256(original).hexdigest())
+        self.assertNotIn("all_fields_visible",
+                         (self.args.output_root /
+                          "index.html").read_text(encoding="utf-8"))
+
+    def test_case_json_includes_previous_attempts_but_defaults_to_latest(self):
+        _, run, _ = self.run_job()
+        batch = dashboard.read_json(run / "raw/batch_summary.json")
+        case = batch["cases"][0]
+        directory = run / "raw/cases/first"
+        for index in (1, 2):
+            output = directory / f"attempt_{index:02d}"
+            output.mkdir(exist_ok=True)
+            case["attempts"][index - 1]["output_root"] = str(output)
+            dashboard.write_json(output / "single_case_summary.json",
+                                 {"attempt": index})
+        case["final_output_root"] = str(directory / "attempt_02")
+        dashboard.write_json(run / "raw/batch_summary.json", batch)
+        report = dashboard.generate(self.args.output_root)[0]
+        files = report["rows"][0]["json_files"]
+        self.assertTrue(any("attempt_01" in x["path"] for x in files))
+        self.assertIn("attempt_02", files[0]["path"])
+        self.assertEqual(report["rows"][0]["status"], "PASS")
+
+    def test_case_json_shows_malformed_file_without_crashing(self):
+        _, run, _ = self.run_job()
+        output = run / "raw/cases/first/attempt_02"
+        (output / "single_case_summary.json").write_text('{"truncated":')
+        report = dashboard.generate(self.args.output_root)[0]
+        files = report["rows"][0]["json_files"]
+        bad = next(x for x in files
+                   if x["path"].endswith("single_case_summary.json"))
+        self.assertIn("JSON 无法解析", bad["error"])
+
+    def test_case_json_does_not_embed_scripts_or_read_outside_run(self):
+        _, run, _ = self.run_job()
+        matrix = dashboard.read_json(run / "raw/matrix_summary.json")
+        directory = Path(matrix["records"][0]["evidence_dir"])
+        attack = '</script><script>alert("injection")</script>'
+        dashboard.write_json(directory / "route.json", {"note": attack})
+        report = dashboard.generate(self.args.output_root)[0]
+        html = (run /
+                report["rows"][0]["json_view"]).read_text(encoding="utf-8")
+        self.assertNotIn(attack, html)
+        data = json.loads(
+            html.split('<script id="case-json-data" type="application/json">')
+            [1].split('</script>')[0])
+        self.assertEqual(attack,
+                         json.loads(data["documents"][0]["text"])["note"])
+        outside = self.root / "outside"
+        outside.mkdir()
+        dashboard.write_json(outside / "route.json",
+                             {"secret": "outside_only"})
+        docs = dashboard.case_json_documents(
+            run, "first", {"final_output_root": str(outside)}, [], {})
+        self.assertEqual(docs, [])
+
+    def test_case_json_keeps_large_files_complete_and_skips_profiler_traces(
+            self):
+        _, run, _ = self.run_job()
+        matrix = dashboard.read_json(run / "raw/matrix_summary.json")
+        directory = Path(matrix["records"][0]["evidence_dir"])
+        text = "x" * 300000 + "end_of_full_document"
+        dashboard.write_json(directory / "route.json", {"full_content": text})
+        trace = directory / "profiler"
+        trace.mkdir()
+        dashboard.write_json(trace / "trace.json", {"large_trace": True})
+        report = dashboard.generate(self.args.output_root)[0]
+        row = report["rows"][0]
+        html = (run / row["json_view"]).read_text(encoding="utf-8")
+        self.assertIn("end_of_full_document", html)
+        self.assertFalse(
+            any(x["path"].endswith("trace.json") for x in row["json_files"]))
+
+    def test_unexecuted_case_has_no_fake_json_documents(self):
+        _, _, report = self.run_job(health={
+            "ok": False,
+            "status": "Critical",
+            "output": "Critical"
+        })
+        self.assertIsNone(report["rows"][0]["json_view"])
+        self.assertEqual(report["rows"][0]["json_files"], [])
+
+    def test_unchanged_json_views_are_cached_and_changes_are_reflected(self):
+        _, run, _ = self.run_job()
+        with patch.object(dashboard,
+                          "case_json_documents",
+                          wraps=dashboard.case_json_documents) as collect:
+            dashboard.generate(self.args.output_root)
+            collect.assert_not_called()
+        matrix = dashboard.read_json(run / "raw/matrix_summary.json")
+        directory = Path(matrix["records"][0]["evidence_dir"])
+        dashboard.write_json(directory / "route.json",
+                             {"new_field_after_refresh": 123})
+        report = dashboard.generate(self.args.output_root)[0]
+        html = (run /
+                report["rows"][0]["json_view"]).read_text(encoding="utf-8")
+        self.assertIn("new_field_after_refresh", html)
 
     def test_paths_from_copied_linux_evidence_resolve_locally(self):
         _, run, _ = self.run_job()

@@ -14,6 +14,7 @@ main{max-width:1328px;margin:auto;padding:32px 24px 48px}.eyebrow{font-size:11px
 .runline{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:8px 0}.banner{white-space:pre-wrap;overflow-wrap:anywhere;padding:14px 18px;background:#fff4dd;border:1px solid #efdfb7;border-radius:9px;margin:0 0 20px;max-height:220px;overflow:auto;font-size:13px}.hidden{display:none!important}
 .cards{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:0 0 22px}.card,.panel{background:var(--paper);border:1px solid var(--line);border-radius:10px}.card{padding:18px 20px}.card .value{font-size:29px;font-weight:650;line-height:1.4;letter-spacing:-1px}.card .label{font-size:12px;color:var(--muted);margin-bottom:6px}.card .hint{font-size:11px;color:var(--muted);margin-top:3px}.green{color:var(--green)}.red{color:var(--red)}.amber{color:var(--amber)}
 .panel{margin-bottom:20px}.panelhead{padding:17px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:16px}.history{display:flex;gap:8px;padding:16px 20px;overflow-x:auto}.history button{border:1px solid var(--line);border-radius:7px;background:#fff;text-align:left;padding:10px 12px;min-width:108px;flex:1}.history button.active{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue)}.history .day{font-size:12px}.history .number{font-size:18px;font-weight:650;margin:3px 0}.track{height:4px;background:#e9eef2;border-radius:2px;overflow:hidden;margin:7px 0}.fill{height:100%;background:var(--green)}
+.jsonchoice{max-width:100%;min-width:200px;width:520px}.jsonframe{width:100%;height:690px;display:block;border:0;border-radius:0 0 10px 10px}.jsonempty{padding:32px 20px;color:var(--muted)}.jsonbutton{padding:0;border:0;background:none;font:inherit;color:var(--blue);cursor:pointer}.jsonhint{padding:10px 20px;border-bottom:1px solid var(--line);font-size:12px;color:var(--muted)}
 .meta{display:flex;flex-wrap:wrap;gap:12px 32px;padding:16px 20px}.meta dt{font-size:11px;color:var(--muted)}.meta dd{margin:2px 0 0;word-break:break-all;font-size:12px;max-width:420px}.meta div{min-width:140px}.toolbar{display:flex;gap:8px;flex-wrap:wrap}.toolbar input{width:230px}.toolbar select{min-width:145px}.toolbar button{border:1px solid var(--line);background:#fff;border-radius:6px;padding:8px 12px;font-size:12px}.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;white-space:nowrap;text-align:left}th{font-size:11px;color:var(--muted);font-weight:600;background:#f9fbfc;padding:11px 16px;border-bottom:1px solid var(--line)}td{font-size:12px;padding:12px 16px;border-bottom:1px solid #edf1f4}tbody tr:last-child td{border-bottom:0}tbody tr:hover{background:#fafcff}.numeric{text-align:right;font-variant-numeric:tabular-nums}.case{font-family:ui-monospace,Consolas,monospace;font-size:12px}.sub{font-size:11px;color:var(--muted);margin-top:2px}.detail{white-space:pre-wrap;overflow-wrap:anywhere;max-width:450px;font:12px/1.6 ui-monospace,Consolas,monospace;margin:8px 0 0}summary{cursor:pointer;color:var(--blue)}.tablefoot{padding:12px 20px;font-size:12px;color:var(--muted);border-top:1px solid var(--line)}footer{font-size:12px;color:var(--muted);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}#empty{text-align:center;padding:70px 24px}
 @media(max-width:900px){.head,.panelhead{align-items:flex-start;flex-direction:column}.cards{grid-template-columns:repeat(3,1fr)}.selectbox{width:100%}.toolbar input{width:180px}}
 @media(max-width:550px){main{padding:24px 14px}.cards{grid-template-columns:repeat(2,1fr)}.card{padding:14px}h1{font-size:24px}nav{padding:14px}.toolbar input{width:100%}}
@@ -38,6 +39,7 @@ main{max-width:1328px;margin:auto;padding:32px 24px 48px}.eyebrow{font-size:11px
 <section class="panel"><div class="panelhead"><h2>测试环境与版本</h2><span id="artifacts"></span></div><dl id="metadata" class="meta"></dl></section>
 <section class="panel"><div class="panelhead"><h2>逐用例结果</h2><div class="toolbar"><input id="search" aria-label="搜索用例" placeholder="搜索用例名称或类别"><select id="filter" aria-label="筛选结果"><option value="">全部结果</option><option value="failures">异常与未通过</option><option value="PASS">通过</option><option value="TIME_FAIL">时间误差超标</option><option value="PRECISION_FAIL">精度失败</option><option value="BLOCKED">环境阻塞</option><option value="NOT_RUN">未执行</option></select><button id="sort" type="button">按 APE 降序</button></div></div>
 <div class="tablewrap"><table><thead><tr><th>用例 / 类别</th><th>精度</th><th class="numeric">预测 μs</th><th class="numeric">实测 μs</th><th class="numeric">APE</th><th>结论</th><th class="numeric">尝试次数</th><th>记录</th></tr></thead><tbody id="rows"></tbody></table></div><div id="tableFoot" class="tablefoot"></div></section>
+<section id="jsonSection" class="panel"><div class="panelhead"><h2>原始 JSON 集中查看</h2><select id="jsonCase" class="jsonchoice" aria-label="选择用例 JSON"></select></div><div class="jsonhint">选择用例后切换 JSON 文件；保留历史尝试，可查看完整预测与验收记录。<span id="jsonSummary"></span></div><div id="jsonEmpty" class="jsonempty">该用例尚无 JSON 结果，可能未执行或环境预检失败。</div><iframe id="jsonFrame" class="jsonframe hidden" title="用例 JSON 浏览器" sandbox="allow-scripts allow-downloads"></iframe></section>
 <footer><span>APE = |预测 − 实测| / 实测 × 100% · 缺失数据及 Event 结果不作为时间验收通过</span><span>页面不需要联网；运行期间刷新可查看已完成结果</span></footer>
 </div>
 </main>
@@ -46,7 +48,7 @@ main{max-width:1328px;margin:auto;padding:32px 24px 48px}.eyebrow{font-size:11px
 'use strict';
 const data=JSON.parse(document.getElementById('dashboard-data').textContent), reports=data.reports, labels=data.labels;
 const $=id=>document.getElementById(id), node=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n};
-let selected=0,descending=false;
+let selected=0,descending=false,jsonCaseName='';
 const num=(v,d=3)=>v===null||v===undefined?'—':Number(v).toFixed(d);
 function badge(status){return node('span',labels[status]||status,'badge '+status)}
 function artifactLink(run,path,text){const a=node('a',text);a.href=run.base+path;return a}
@@ -60,12 +62,27 @@ function updateTable(){
   tr.append(node('td',r.precision===true?'通过':r.precision===false?'失败':'未验证'));
   tr.append(node('td',num(r.predicted_us),'numeric'),node('td',num(r.actual_us),'numeric'),node('td',r.ape_percent===null?'—':num(r.ape_percent,2)+'%','numeric'+(r.status==='TIME_FAIL'?' red':'')));
   const status=node('td');status.append(badge(r.status));tr.append(status,node('td',String(r.attempts??0),'numeric'));
-  const records=node('td');if(r.log)records.append(artifactLink(run,r.log,'日志'));if(r.evidence){records.append(node('span',' · '));records.append(artifactLink(run,r.evidence,'数据'))}
+  const records=node('td');if(r.log)records.append(artifactLink(run,r.log,'日志'));if(r.json_view){if(records.childNodes.length)records.append(node('span',' · '));const b=node('button','JSON ('+r.json_files.length+')','jsonbutton');b.type='button';b.setAttribute('aria-label','查看 '+r.name+' 的 JSON');b.addEventListener('click',()=>openCaseJson(r.name,true));records.append(b)}else if(r.evidence){if(records.childNodes.length)records.append(node('span',' · '));records.append(artifactLink(run,r.evidence,'数据'))}
   if(r.detail){const details=node('details');details.append(node('summary','原因'),node('pre',r.detail,'detail'));records.append(details)}
   tr.append(records);$('rows').append(tr);
  }
  if(!rows.length){const tr=node('tr'),td=node('td','没有匹配的用例');td.colSpan=8;tr.append(td);$('rows').append(tr)}
  $('tableFoot').textContent='显示 '+rows.length+' / '+run.total+' 个用例 · 每行展示最终一次尝试，早期尝试保留在日志中';
+}
+function openCaseJson(name,scroll=false){
+ const run=reports[selected],row=run.rows.find(r=>r.name===name);if(!row)return;
+ jsonCaseName=name;$('jsonCase').value=name;const ready=!!row.json_view;
+ $('jsonFrame').classList.toggle('hidden',!ready);$('jsonEmpty').classList.toggle('hidden',ready);
+ $('jsonFrame').src=ready?run.base+row.json_view:'about:blank';
+ if(scroll)$('jsonSection').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function setupJson(){
+ const run=reports[selected];$('jsonCase').replaceChildren();
+ for(const row of run.rows){const option=node('option',row.name+' · '+(row.json_files||[]).length+' 个文件');option.value=row.name;$('jsonCase').append(option)}
+ $('jsonCase').disabled=!run.rows.length;$('jsonSummary').replaceChildren();
+ if(run.links.summary){const a=artifactLink(run,run.links.summary,'下载全部用例指标汇总 JSON');a.download='dashboard.json';$('jsonSummary').append(node('span',' · '),a)}
+ const first=run.rows.find(r=>r.name===jsonCaseName)||run.rows.find(r=>r.json_view)||run.rows[0];
+ if(first)openCaseJson(first.name);else{$('jsonFrame').src='about:blank';$('jsonFrame').classList.add('hidden');$('jsonEmpty').classList.remove('hidden')}
 }
 function show(index){
  selected=index;const run=reports[index],c=run.counts;$('runSelect').value=String(index);$('runStatus').replaceWith(Object.assign(badge(run.status),{id:'runStatus'}));
@@ -77,12 +94,12 @@ function show(index){
  const items=[['TA 版本',run.ta_version||'尚未完成环境预检'],['测试仓提交',(run.git.sha||'—')+(run.git.dirty?' · 有本地修改':'')],['Profile',run.profile_version||'—'],['Profile SHA256',run.profile_sha256||'—'],['验收协议','Auto · Profiler · 3 个测量进程 · APE ≤ 10%'],['设备状态',(run.health.status||'未记录')+' · NPU '+(run.device??'—')]];
  for(const [label,value] of items){const div=node('div');div.append(node('dt',label),node('dd',value));$('metadata').append(div)}
  $('artifacts').replaceChildren();for(const [key,label] of [['log','完整运行日志'],['metadata','运行信息'],['profile','Profile 快照信息']]){if(run.links[key]){if($('artifacts').childNodes.length)$('artifacts').append(node('span',' · '));$('artifacts').append(artifactLink(run,run.links[key],label))}}
- document.querySelectorAll('#history button').forEach((b,i)=>b.classList.toggle('active',i===index));updateTable();
+ document.querySelectorAll('#history button').forEach((b,i)=>b.classList.toggle('active',i===index));updateTable();setupJson();
 }
 if(!reports.length){$('empty').classList.remove('hidden');$('content').classList.add('hidden');$('runSelect').disabled=true}else{
  reports.forEach((r,i)=>{const option=node('option',r.started_at.replace('T',' ').replace('+08:00','')+' · '+(labels[r.status]||r.status));option.value=String(i);$('runSelect').append(option)});
  reports.slice(0,14).forEach((r,i)=>{const b=node('button');b.type='button';b.append(node('div',r.started_at.slice(0,16).replace('T',' '),'day'),node('div',(r.counts.PASS||0)+' / '+r.total,'number'));const track=node('div',undefined,'track'),fill=node('div',undefined,'fill');fill.style.width=(r.total?100*(r.counts.PASS||0)/r.total:0)+'%';track.append(fill);b.append(track,badge(r.status));b.addEventListener('click',()=>show(i));$('history').append(b)});
- $('runSelect').addEventListener('change',()=>show(Number($('runSelect').value)));$('search').addEventListener('input',updateTable);$('filter').addEventListener('change',updateTable);$('sort').addEventListener('click',()=>{descending=!descending;$('sort').textContent=descending?'按清单顺序':'按 APE 降序';updateTable()});show(0);
+ $('runSelect').addEventListener('change',()=>show(Number($('runSelect').value)));$('jsonCase').addEventListener('change',()=>openCaseJson($('jsonCase').value));$('search').addEventListener('input',updateTable);$('filter').addEventListener('change',updateTable);$('sort').addEventListener('click',()=>{descending=!descending;$('sort').textContent=descending?'按清单顺序':'按 APE 降序';updateTable()});show(0);
 }
 </script>
 </body>

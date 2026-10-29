@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>用例原始 JSON</title>
+<style>
+*{box-sizing:border-box}body{margin:0;height:100vh;display:flex;flex-direction:column;overflow:hidden;color:#172a3c;background:#f9fbfc;font:13px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif}header{flex:none;padding:16px 20px;background:#fff;border-bottom:1px solid #dfe6eb}h1{font-size:14px;margin:0 0 12px;overflow-wrap:anywhere}.tools{display:flex;gap:8px;flex-wrap:wrap}select{flex:1;min-width:150px;max-width:100%}select,button{font:inherit;border:1px solid #dfe6eb;border-radius:6px;background:white;padding:7px 10px;color:#172a3c}button{cursor:pointer}button:disabled{cursor:default;color:#9aa7b2}.meta{font-size:11px;color:#68798a;overflow-wrap:anywhere;margin-top:10px}.error{background:#fff4dd;color:#966619;padding:8px 12px;border-radius:5px;white-space:pre-wrap;margin-top:10px}.hidden{display:none}pre{margin:0;flex:1;min-height:0;padding:18px 20px;font:12px/1.65 ui-monospace,Consolas,monospace;tab-size:2;overflow:auto}pre.wrap{white-space:pre-wrap;overflow-wrap:anywhere}:focus-visible{outline:3px solid #94b7ff;outline-offset:2px}
+</style>
+</head>
+<body>
+<header><h1 id="case"></h1><div class="tools"><select id="file" aria-label="选择 JSON 文件"></select><button id="wrap" type="button">自动换行</button><button id="download" type="button">下载原 JSON</button></div><div id="meta" class="meta"></div><div id="error" class="error hidden"></div></header>
+<pre id="json" tabindex="0" aria-label="JSON 内容"></pre>
+<script id="case-json-data" type="application/json">__CASE_JSON_DATA__</script>
+<script>
+'use strict';
+const data=JSON.parse(document.getElementById('case-json-data').textContent),$=id=>document.getElementById(id);
+let current=0;
+$('case').textContent=data.case+' · 原始 JSON';
+for(const [i,d] of data.documents.entries()){const option=document.createElement('option');option.value=String(i);option.textContent=d.name;$('file').append(option)}
+function show(index){current=index;const d=data.documents[index];$('json').textContent=d.text;$('meta').textContent=d.path+' · '+d.bytes.toLocaleString()+' bytes · SHA256 '+d.sha256;$('error').textContent=d.error||'';$('error').classList.toggle('hidden',!d.error);$('download').disabled=d.raw===null}
+$('file').addEventListener('change',()=>show(Number($('file').value)));
+$('wrap').addEventListener('click',()=>{const on=$('json').classList.toggle('wrap');$('wrap').textContent=on?'取消换行':'自动换行'});
+$('download').addEventListener('click',()=>{const d=data.documents[current];if(d.raw===null)return;const url=URL.createObjectURL(new Blob([d.raw],{type:'application/json;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download=d.path.split('/').pop();a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)});
+if(data.documents.length)show(0);
+</script>
+</body>
+</html>
