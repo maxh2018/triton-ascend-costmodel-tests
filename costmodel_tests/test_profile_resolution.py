@@ -323,9 +323,11 @@ class ResolutionTests(unittest.TestCase):
             prepare_profile(self.installed, self.output, self.env)
         self.assertFalse(self.output.parent.exists())
         indirect.parent.mkdir()
-        indirect.write_text('{"parameters": {"cost": NaN}}')
-        with self.assertRaisesRegex(ValueError, "Non-finite"):
-            prepare_profile(self.installed, self.output, self.env)
+        for constant in ("NaN", "1e309", "-1e309"):
+            with self.subTest(constant=constant):
+                indirect.write_text('{"parameters": {"cost": ' + constant + '}}')
+                with self.assertRaisesRegex(ValueError, "Non-finite"):
+                    prepare_profile(self.installed, self.output, self.env)
         indirect.write_bytes(b'{"parameters": {"cost": [1, 2]}}\n')
         prepare_profile(self.installed, self.output, self.env)
         ref = read_json(self.output)["indirect_memory_profile"]

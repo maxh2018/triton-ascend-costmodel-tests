@@ -7,6 +7,7 @@ import hashlib
 import importlib
 from importlib import metadata as package_metadata
 import json
+import math
 import os
 from pathlib import Path
 import shutil
@@ -25,7 +26,13 @@ def json_object(raw, label):
     def invalid_constant(value):
         raise ValueError(f"Non-finite JSON value {value} in {label}")
 
-    value = json.loads(raw, parse_constant=invalid_constant)
+    def finite_float(text):
+        number = float(text)
+        if not math.isfinite(number):
+            invalid_constant(text)
+        return number
+
+    value = json.loads(raw, parse_constant=invalid_constant, parse_float=finite_float)
     if not isinstance(value, dict):
         raise ValueError(f"expected a JSON object: {label}")
     return value
