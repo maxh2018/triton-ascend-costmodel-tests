@@ -17,14 +17,16 @@ python -m pip install -r costmodel_tests/requirements.txt
 然后执行夜测：
 
 ```bash
-python costmodel_tests/nightly.py --device 1
+python costmodel_tests/nightly.py --device 1 --jobs 4
 ```
+
+本页常用命令采用单卡 4 并发；省略 `--jobs` 时，脚本默认仍为串行。
 
 如果需要关闭 SSH 后继续运行，用后台命令：
 
 ```bash
 mkdir -p costmodel_test_results
-nohup python -u costmodel_tests/nightly.py --device 1 \
+nohup python -u costmodel_tests/nightly.py --device 1 --jobs 4 \
   > costmodel_test_results/nightly-launch.log 2>&1 &
 ```
 
@@ -50,15 +52,11 @@ TA 和 profile 的选择沿用[现有规则](PROFILES.md)：默认使用当前�
 
 ```bash
 # 为当晚的被测版本加备注，并把结果保存到固定目录
-python costmodel_tests/nightly.py --device 1 \
+python costmodel_tests/nightly.py --device 1 --jobs 4 \
   --label "TA-当日构建号" --output-root /path/to/nightly
 
 # 首次结果自检，不自动重试
-python costmodel_tests/nightly.py --device 1 --retries 0
-
-# 单卡并发：最多同时执行 4 个 case，继续生成同一套看板
-python costmodel_tests/nightly.py --device 1 --jobs 4 \
-  --label "TA-test" --output-root /path/to/nightly
+python costmodel_tests/nightly.py --device 1 --jobs 4 --retries 0
 ```
 
 `--jobs 4` 表示 4 个用例共享 `--device` 指定的卡，每个用例仍执行 3 轮独立 Profiler 测量。
