@@ -91,6 +91,16 @@ def excerpt(paths):
     return "\n".join(pieces)[-16000:]
 
 
+def blocker_reason(run):
+    """Prefer the actual error over argparse usage when a runner cannot start."""
+    text = excerpt([Path(run) / "nightly.log"])
+    lines = [line.strip() for line in text.splitlines() if line.strip()]
+    for line in reversed(lines):
+        if "error:" in line.lower() or "preflight failed:" in line.lower():
+            return line
+    return "\n".join(lines[-5:])[-3000:] or "环境预检或设备初始化失败"
+
+
 def case_json_paths(run, name, result, matrix, metadata):
     """Collect acceptance JSON, including earlier attempts, without scanning caches/traces."""
     directories = set()
@@ -385,7 +395,7 @@ def build_report(run):
     runtime = (profile.get("runtimes") or [{}])[0]
     message = metadata.get("error") or ""
     if status == "BLOCKED" and not message:
-        message = excerpt([run / "nightly.log"])[-3000:] or "环境预检或设备初始化失败"
+        message = blocker_reason(run)
     return {
         "id":
         run.name,
@@ -416,7 +426,7 @@ def build_report(run):
         "occupancy":
         metadata.get("occupancy", {}),
         "warnings":
-        metadata.get("warnings", []),
+        list(dict.fromkeys(metadata.get("warnings", []) + profile.get("validation_warnings", []))),
         "manifest_sha256":
         metadata.get("manifest_sha256"),
         "ta_version":

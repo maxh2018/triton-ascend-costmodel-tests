@@ -85,6 +85,8 @@ python costmodel_tests/nightly.py --device 1 --require-idle-devices
 ```
 
 设备 `Critical`、TA/profile 不兼容等无法正常执行测试的检查仍会保留。
+若启动失败，终端会同时打印 `Reason`（具体原因）和 `Log`（完整日志路径）。
+已知的 profile 来源标签差异会按[兼容规则](PROFILES.md#运行前检查什么)警告并继续，警告也会出现在看板中。
 
 ## 2. 第二天怎么看
 

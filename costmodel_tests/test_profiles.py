@@ -18,7 +18,11 @@ class ProfileTests(unittest.TestCase):
             dependency = root / "profiles/microbench/hardware.json"
             dependency.parent.mkdir()
             dependency.write_text('{"measurements": {"clock": 1000}}')
-            original = {"target": "test", "microbenchmark_profile": "../microbench/hardware.json"}
+            indirect = root / "profiles/indirect_memory/hardware.json"
+            indirect.parent.mkdir()
+            indirect.write_bytes(b'{"parameters": {"coefficient": [1, 2]}}\n')
+            original = {"target": "test", "microbenchmark_profile": "../microbench/hardware.json",
+                        "indirect_memory_profile": "../indirect_memory/hardware.json"}
             source.write_text(json.dumps(original))
             outputs = [root / directory / "costmodel_profile.json"
                        for directory in ("batch", "case", "merged")]
@@ -28,6 +32,8 @@ class ProfileTests(unittest.TestCase):
                 snapshot_profile(previous, output)
                 reference = json.loads(output.read_text())["microbenchmark_profile"]
                 self.assertEqual((output.parent / reference).read_bytes(), dependency.read_bytes())
+                indirect_ref = json.loads(output.read_text())["indirect_memory_profile"]
+                self.assertEqual((output.parent / indirect_ref).read_bytes(), indirect.read_bytes())
                 previous = output
             self.assertEqual(outputs[0].read_bytes(), outputs[-1].read_bytes())
             self.assertEqual(json.loads(source.read_text()), original)
@@ -36,6 +42,8 @@ class ProfileTests(unittest.TestCase):
             shutil.rmtree(outputs[-1].parent)
             reference = json.loads((moved / "costmodel_profile.json").read_text())["microbenchmark_profile"]
             self.assertEqual((moved / reference).read_bytes(), dependency.read_bytes())
+            indirect_ref = json.loads((moved / "costmodel_profile.json").read_text())["indirect_memory_profile"]
+            self.assertEqual((moved / indirect_ref).read_bytes(), indirect.read_bytes())
 
     def test_absolute_reference_and_missing_dependency(self):
         with tempfile.TemporaryDirectory() as temporary:

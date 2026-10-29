@@ -8,6 +8,7 @@ profile 是 TA CostModel 的参数文件。TA 分析 kernel 中的运算、访�
 |---|---|
 | `simd_simt/*.json` | 路线模型的校准参数、启动开销和部分策略配置 |
 | `microbench/*.json` | 硬件吞吐率、延迟等实测参数，由上面的文件引用 |
+| `indirect_memory/*.json`（部分 TA 版本） | 间接访存模型的参数，由路线文件引用；测试会一起保存快照 |
 | `*_schema.json` | TA 支持的参数结构及格式版本，用于运行前校验 |
 
 默认 Auto 测试的流程：
@@ -67,7 +68,13 @@ python costmodel_tests/run.py --device 0 \
 - 检查每张指定 NPU 的目标型号是否在 profile 的 `compatible_targets` 中。
 - 用已安装 TA 的 schema 校验路线参数和 microbenchmark 参数。
 - 检查两份参数的目标一致、引用的 measurement ID 存在。
+- 引用间接访存参数时，一并检查文件存在、JSON 可解析且无非有限数值；TA 未提供其独立 schema，模型结构和维度由 TA 编译时检查。
 - 固定通过校验的文件内容；子任务复用本次快照，并检查哈希和 TA 安装状态。
+
+**已知来源标签兼容：** 部分 TA 包的硬件参数使用 `source_kind="derived_calibration"`
+（参数来自校准推导），但随包 schema 的来源枚举尚未包含它。仅此标签差异会作为警告继续运行，
+不会修改参数或 schema 文件；警告保存在 `profile_metadata.json`、报告和夜测看板中。
+其他格式错误、未知来源标签、数值或硬件不兼容仍会阻止运行。
 
 纯功能模式 `--costmodel-functional-only` 和 pytest 仅收集用例时不执行 CostModel，因此不要求 TA/profile 校验，也不会据此判定耗时通过。
 `list`、`--dry-run` 仍无需 NPU 环境。
@@ -82,6 +89,7 @@ python costmodel_tests/run.py --device 0 \
 | `profile_version`、`schema_version`、`source_sha256` | 原始参数的版本及 SHA256 |
 | `runtimes` | 实际加载的 TA/Triton 版本（含可确认归属的 wheel 构建版本）、路径、代码/原生库指纹和每张卡的目标 |
 | `artifacts` | 本次完整快照中各文件的 SHA256 |
+| `validation_warnings` | 已知来源标签的兼容警告；空列表表示没有此类警告 |
 
 快照包含运行时读取的全部参数及校验 schema：
 

@@ -19,9 +19,10 @@ p=argparse.ArgumentParser()
 p.add_argument('--manifest',type=Path);p.add_argument('--output-root',type=Path)
 a,unused=p.parse_known_args()
 mode=os.environ.get('NIGHTLY_FAKE_MODE','pass')
-if mode=='preflight':print('Profile preflight failed: incompatible schema');raise SystemExit(2)
+if mode=='preflight':print('usage: runner [options]\nrunner: error: Profile preflight failed: incompatible schema');raise SystemExit(2)
 if mode=='timeout':time.sleep(30)
 raw=a.output_root;raw.mkdir()
+if mode=='profile_warning':(raw/'profile_metadata.json').write_text(json.dumps({'validation_warnings':['TA provenance mismatch: derived_calibration']}))
 manifest=json.loads(a.manifest.read_text());cases=[];records=[];audits=[]
 for c in manifest['cases']:
  name=c['name'];directory=raw/'cases'/name/'attempt_02';directory.mkdir(parents=True)
@@ -86,7 +87,7 @@ class NightlyTests(unittest.TestCase):
     def run_job(self, mode="pass", health=None, occupancy=None):
         with patch.dict(os.environ,
                         {"NIGHTLY_FAKE_MODE": mode}), redirect_stdout(
-                            io.StringIO()):
+                            io.StringIO()) as console:
             code = nightly.execute(self.args,
                                    runner=self.runner,
                                    device_check=lambda _: health or {
@@ -99,6 +100,7 @@ class NightlyTests(unittest.TestCase):
                                        "processes": [],
                                        "output": "idle"
                                    })
+        self.console = console.getvalue()
         run = sorted((self.args.output_root / "runs").iterdir())[-1]
         return code, run, dashboard.read_json(run / "dashboard.json")
 
@@ -259,7 +261,19 @@ class NightlyTests(unittest.TestCase):
         _, run, report = self.run_job("preflight")
         self.assertEqual(report["status"], "BLOCKED")
         self.assertIn("incompatible schema", report["message"])
+        self.assertNotIn("usage:", report["message"])
+        self.assertIn("Reason: runner: error: Profile preflight failed: incompatible schema", self.console)
+        self.assertIn("Log:", self.console)
+        metadata = dashboard.read_json(run / "run.json")
+        self.assertEqual(metadata["state"], "BLOCKED")
+        self.assertEqual(metadata["error"], report["message"])
         self.assertTrue((run / "index.html").is_file())
+
+    def test_profile_warning_is_shown_without_changing_acceptance(self):
+        code, _, report = self.run_job("profile_warning")
+        self.assertEqual(code, 0)
+        self.assertEqual(report["status"], "PASS")
+        self.assertIn("derived_calibration", report["warnings"][0])
 
     def test_partial_run_does_not_become_pass(self):
         code, _, report = self.run_job("partial")

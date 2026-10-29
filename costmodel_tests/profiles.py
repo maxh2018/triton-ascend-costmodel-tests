@@ -134,7 +134,7 @@ def probe_runtime(env):
         f"environment first. {detail}")
 
 
-def validate_json(data, schema_path, label):
+def validate_json(data, schema_path, label, provenance_warnings=None):
     try:
         import jsonschema
     except ImportError as error:
@@ -150,16 +150,34 @@ def validate_json(data, schema_path, label):
         raise ValueError(
             f"Invalid schema shipped by the installed TA: {error.message}"
         ) from error
-    error = next(validator(schema).iter_errors(data), None)
-    if error is not None:
+    for error in validator(schema).iter_errors(data):
         location = ".".join(str(part)
                             for part in error.absolute_path) or "<root>"
+        # Some TA wheels ship this provenance tag before updating its enum.
+        # It describes where a measurement came from, not its numeric value.
+        path = list(error.absolute_path)
+        if (provenance_warnings is not None
+                and label == "microbenchmark profile"
+                and len(path) == 3 and path[0] == "measurements"
+                and path[2] == "source_kind"
+                and error.validator == "enum"
+                and error.instance == "derived_calibration"
+                and error.validator_value == [
+                    "isolated_microbenchmark", "device_configuration",
+                    "architecture_fact"
+                ]):
+            provenance_warnings.append(
+                f"TA profile/schema provenance mismatch at {location}: "
+                "source_kind=derived_calibration is absent from the bundled enum; "
+                "continuing with the original parameters. Numeric, target and "
+                "remaining schema checks still apply.")
+            continue
         raise ValueError(
             f"{label} is incompatible with the installed TA schema at {location}: {error.message}"
         )
 
 
-def validate_profile(source, runtimes, schemas):
+def validate_profile(source, runtimes, schemas, provenance_warnings=None):
     raw = source.read_bytes()
     data = json_object(raw, source)
     for runtime in runtimes:
@@ -179,7 +197,7 @@ def validate_profile(source, runtimes, schemas):
     dependency = (source.parent / reference).resolve()
     hardware_raw = dependency.read_bytes()
     hardware = json_object(hardware_raw, dependency)
-    validate_json(hardware, schemas[1], "microbenchmark profile")
+    validate_json(hardware, schemas[1], "microbenchmark profile", provenance_warnings)
     if hardware.get("target") != data.get("target"):
         raise ValueError(
             "Selection and microbenchmark profiles have different targets")
@@ -200,7 +218,18 @@ def validate_profile(source, runtimes, schemas):
                 check_references(item)
 
     check_references(data)
-    return data, dependency, {source: raw, dependency: hardware_raw}
+    materials = {source: raw, dependency: hardware_raw}
+    if "indirect_memory_profile" in data:
+        reference = data["indirect_memory_profile"]
+        if not isinstance(reference, str) or not reference:
+            raise ValueError(f"invalid indirect_memory_profile in {source}")
+        indirect = (source.parent / reference).resolve()
+        indirect_raw = indirect.read_bytes()
+        # No separate schema is shipped for this optional TA resource.
+        # Reject malformed/non-finite JSON here; TA validates model dimensions.
+        json_object(indirect_raw, indirect)
+        materials[indirect] = indirect_raw
+    return data, dependency, materials
 
 
 def resolve_profile(requested, env, devices=None):
@@ -234,10 +263,11 @@ def resolve_profile(requested, env, devices=None):
     schema_objects = [json_object(schema_raw[path], path) for path in schemas]
     selected = requested or env.get("TRITON_ASCEND_AUTO_SIMT_PROFILE")
     source_kind = "explicit" if requested is not None else "environment" if selected else "installed_ta"
+    validation_warnings = []
     if selected:
         source = Path(selected).resolve()
         data, dependency, materials = validate_profile(source, runtimes,
-                                                       schema_objects)
+                                                       schema_objects, validation_warnings)
     else:
         candidates, rejected = [], []
         for source in sorted({
@@ -248,9 +278,10 @@ def resolve_profile(requested, env, devices=None):
             if source.name.endswith("schema.json"):
                 continue
             try:
+                candidate_warnings = []
                 data, dependency, materials = validate_profile(
-                    source, runtimes, schema_objects)
-                candidates.append((source, data, dependency, materials))
+                    source, runtimes, schema_objects, candidate_warnings)
+                candidates.append((source, data, dependency, materials, candidate_warnings))
             except (OSError, ValueError) as error:
                 rejected.append(f"{source.name}: {error}")
         if len(candidates) != 1:
@@ -260,7 +291,7 @@ def resolve_profile(requested, env, devices=None):
                 "Expected one compatible profile in the installed TA; "
                 f"found {len(candidates)}. Use --profile to choose explicitly. {detail}"
             )
-        source, data, dependency, materials = candidates[0]
+        source, data, dependency, materials, validation_warnings = candidates[0]
     return {
         "source": source,
         "data": data,
@@ -268,6 +299,7 @@ def resolve_profile(requested, env, devices=None):
         "schemas": schemas,
         "runtimes": runtimes,
         "source_kind": source_kind,
+        "validation_warnings": validation_warnings,
         "materials": {
             **materials,
             **schema_raw
@@ -369,6 +401,14 @@ def prepare_profile(requested,
     dependency_target.parent.mkdir(parents=True, exist_ok=True)
     dependency_target.write_bytes(plan["materials"][plan["dependency"]])
     data["microbenchmark_profile"] = relative_dependency.as_posix()
+    indirect_name = None
+    if "indirect_memory_profile" in data:
+        indirect = (source.parent / data["indirect_memory_profile"]).resolve()
+        relative = Path("profile_dependencies/indirect_memory") / indirect.name
+        target = destination.parent / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(plan["materials"][indirect])
+        indirect_name = data["indirect_memory_profile"] = relative.as_posix()
     data["$schema"] = "profile_schemas/simd_simt_profile_schema.json"
     destination.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
     for schema, relative in zip(
@@ -384,6 +424,8 @@ def prepare_profile(requested,
         "profile_schemas/simd_simt_profile_schema.json",
         "profile_dependencies/microbenchmark_profile_schema.json"
     ]
+    if indirect_name:
+        names.append(indirect_name)
     metadata = {
         "validation_scope": "costmodel",
         "profile_used_by_costmodel": True,
@@ -391,6 +433,7 @@ def prepare_profile(requested,
         "host": socket.gethostname(),
         "context_id": uuid.uuid4().hex,
         "source_kind": plan["source_kind"],
+        "validation_warnings": plan["validation_warnings"],
         "source_path": str(source),
         "source_sha256": digest(raw),
         "profile_version": plan["data"]["profile_version"],
@@ -411,29 +454,35 @@ def prepare_profile(requested,
         f"Profile: {source} ({plan['source_kind']}); target={metadata['target']}",
         flush=True)
     print(f"Profile SHA256: {metadata['source_sha256']}", flush=True)
+    for warning in metadata["validation_warnings"]:
+        print("WARNING: " + warning, flush=True)
     return destination
 
 
 def snapshot_profile(source: Path, destination: Path) -> None:
     source, destination = source.resolve(), destination.resolve()
     profile = json.loads(source.read_text(encoding="utf-8"))
-    reference = profile.get("microbenchmark_profile")
-    if reference is None:
+    keys = [key for key in ("microbenchmark_profile", "indirect_memory_profile") if key in profile]
+    if not keys:
         if source != destination:
             shutil.copy2(source, destination)
         return
-    if not isinstance(reference, str) or not reference:
-        raise ValueError(f"invalid microbenchmark_profile in {source}")
-    dependency = (source.parent / reference).resolve()
-    if not dependency.is_file():
-        raise FileNotFoundError(
-            f"microbenchmark_profile referenced by {source}: {dependency}")
-    relative = Path("profile_dependencies") / dependency.name
-    target = destination.parent / relative
-    target.parent.mkdir(parents=True, exist_ok=True)
-    if dependency != target.resolve():
-        shutil.copy2(dependency, target)
-    profile["microbenchmark_profile"] = relative.as_posix()
+    for key in keys:
+        reference = profile[key]
+        if not isinstance(reference, str) or not reference:
+            raise ValueError(f"invalid {key} in {source}")
+        dependency = (source.parent / reference).resolve()
+        if not dependency.is_file():
+            raise FileNotFoundError(f"{key} referenced by {source}: {dependency}")
+        folder = Path("profile_dependencies")
+        if key == "indirect_memory_profile":
+            folder /= "indirect_memory"
+        relative = folder / dependency.name
+        target = destination.parent / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        if dependency != target.resolve():
+            shutil.copy2(dependency, target)
+        profile[key] = relative.as_posix()
     destination.write_text(json.dumps(profile, indent=2) + "\n",
                            encoding="utf-8")
 
@@ -455,7 +504,8 @@ def profile_report_lines(output):
         f"- Hardware: `{', '.join(item['target']['arch'] for item in metadata['runtimes'])}`",
         f"- Profile: `{metadata['profile_version']}` ({metadata['source_kind']})",
         f"- Original profile SHA256: `{metadata['source_sha256']}`",
-        "- [Versions, hashes and snapshot manifest](profile_metadata.json)", ""
+        "- [Versions, hashes and snapshot manifest](profile_metadata.json)",
+        *("- WARNING: " + warning for warning in metadata.get("validation_warnings", [])), ""
     ]
 
 

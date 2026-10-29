@@ -267,7 +267,7 @@ class ResolutionTests(unittest.TestCase):
             read_json(self.output.parent /
                       "profile_metadata.json")["profile_used_by_costmodel"])
 
-    def test_repository_baseline_does_not_bypass_installed_schema(self):
+    def test_known_provenance_mismatch_warns_and_preserves_original_bytes(self):
         assets = Path(__file__).resolve(
         ).parents[1] / "cases/ci/third_party/ascend/costmodel/profiles"
         for folder, name in (("simd_simt", "simd_simt_profile_schema.json"),
@@ -276,10 +276,77 @@ class ResolutionTests(unittest.TestCase):
             shutil.copy2(assets / folder / name,
                          self.installed.parent.parent / folder / name)
         baseline = assets / "simd_simt/ascend_950pr_simd_simt_v1.json"
-        # The archived measurement data contains a source_kind absent from this
-        # archived schema. Preserve and report that incompatibility honestly.
-        with self.assertRaisesRegex(ValueError, "derived_calibration"):
-            prepare_profile(baseline, self.output, self.env)
+        dependency = (baseline.parent / read_json(baseline)["microbenchmark_profile"]).resolve()
+        before = {path: path.read_bytes() for path in (baseline, dependency)}
+        prepare_profile(baseline, self.output, self.env)
+        metadata = read_json(self.output.parent / "profile_metadata.json")
+        self.assertEqual(len(metadata["validation_warnings"]), 1)
+        self.assertIn("derived_calibration", metadata["validation_warnings"][0])
+        self.assertEqual((self.output.parent / "profile_sources/selection.json").read_bytes(), before[baseline])
+        self.assertEqual((self.output.parent / "profile_dependencies" / dependency.name).read_bytes(), before[dependency])
+        for path, raw in before.items():
+            self.assertEqual(path.read_bytes(), raw)
+
+    def measurement_profile(self, source_kind="derived_calibration", value=1):
+        assets = self.installed.parent.parent
+        schema_path = assets / "microbench/microbenchmark_profile_schema.json"
+        schema = read_json(schema_path)
+        schema["properties"]["measurements"] = {
+            "type": "object", "additionalProperties": {
+                "type": "object", "required": ["value", "source_kind"],
+                "properties": {
+                    "value": {"type": "number", "minimum": 0},
+                    "source_kind": {"enum": ["isolated_microbenchmark", "device_configuration", "architecture_fact"]}
+                }
+            }
+        }
+        schema_path.write_text(json.dumps(schema))
+        hardware_path = assets / "microbench/hardware.json"
+        hardware = read_json(hardware_path)
+        hardware["measurements"] = {"test.measurement": {"source_kind": source_kind, "value": value}}
+        hardware_path.write_text(json.dumps(hardware))
+
+    def test_default_installed_profile_records_provenance_warning(self):
+        self.measurement_profile()
+        prepare_profile(None, self.output, self.env)
+        metadata = read_json(self.output.parent / "profile_metadata.json")
+        self.assertEqual(metadata["source_kind"], "installed_ta")
+        self.assertEqual(len(metadata["validation_warnings"]), 1)
+        self.assertIn("test.measurement.source_kind", metadata["validation_warnings"][0])
+
+    def test_optional_indirect_parameters_are_frozen_hashed_and_required(self):
+        data = read_json(self.installed)
+        data["indirect_memory_profile"] = "../indirect_memory/hardware.json"
+        self.installed.write_text(json.dumps(data))
+        indirect = (self.installed.parent / data["indirect_memory_profile"]).resolve()
+        with self.assertRaisesRegex(ValueError, "hardware.json"):
+            prepare_profile(self.installed, self.output, self.env)
+        self.assertFalse(self.output.parent.exists())
+        indirect.parent.mkdir()
+        indirect.write_text('{"parameters": {"cost": NaN}}')
+        with self.assertRaisesRegex(ValueError, "Non-finite"):
+            prepare_profile(self.installed, self.output, self.env)
+        indirect.write_bytes(b'{"parameters": {"cost": [1, 2]}}\n')
+        prepare_profile(self.installed, self.output, self.env)
+        ref = read_json(self.output)["indirect_memory_profile"]
+        snapshot = self.output.parent / ref
+        self.assertEqual(snapshot.read_bytes(), indirect.read_bytes())
+        metadata = read_json(self.output.parent / "profile_metadata.json")
+        self.assertEqual(metadata["artifacts"][ref], digest(indirect))
+        self.assertEqual(len(metadata["artifacts"]), 6)
+
+    def test_provenance_exception_does_not_hide_other_schema_errors(self):
+        for value in ("invalid", -1):
+            with self.subTest(value=value):
+                self.measurement_profile(value=value)
+                with self.assertRaisesRegex(ValueError, "test.measurement.value"):
+                    prepare_profile(self.installed, self.output, self.env)
+                self.assertFalse(self.output.parent.exists())
+
+    def test_unknown_provenance_tag_still_rejected(self):
+        self.measurement_profile(source_kind="unknown_calibration")
+        with self.assertRaisesRegex(ValueError, "unknown_calibration"):
+            prepare_profile(self.installed, self.output, self.env)
         self.assertFalse(self.output.parent.exists())
 
     def test_nonfinite_parameters_are_rejected(self):

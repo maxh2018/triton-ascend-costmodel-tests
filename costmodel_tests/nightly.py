@@ -18,7 +18,7 @@ import time
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from costmodel_tests.dashboard import DEFAULT_OUTPUT, generate, write_json
+from costmodel_tests.dashboard import DEFAULT_OUTPUT, blocker_reason, generate, write_json
 from costmodel_tests.manifests import load_manifest
 
 TZ = timezone(timedelta(hours=8))
@@ -336,6 +336,10 @@ def _execute(args, runner, device_check, occupancy_check):
             stop_process(process)
         metadata.update(state="BLOCKED", returncode=2, error=str(error))
     finally:
+        if (metadata["state"] == "COMPLETE" and metadata["returncode"] != 0
+                and not any((run / "raw" / name).is_file() for name in (
+                    "batch_summary.json", "batch_summary.partial.json"))):
+            metadata.update(state="BLOCKED", error=blocker_reason(run))
         metadata["finished_at"] = timestamp()
         write_json(run / "run.json", metadata)
         reports = generate(output)
@@ -344,6 +348,9 @@ def _execute(args, runner, device_check, occupancy_check):
     print(
         f"Nightly: {report['status']} ({report['counts'].get('PASS', 0)}/{report['total']} accepted)",
         flush=True)
+    if report["status"] == "BLOCKED":
+        print(f"Reason: {report['message']}", flush=True)
+        print(f"Log: {run / 'nightly.log'}", flush=True)
     print(f"Report: {run / 'index.html'}", flush=True)
     return 0 if passed else 1
 
