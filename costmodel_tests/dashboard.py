@@ -431,6 +431,8 @@ def build_report(run):
                 m["status"] not in ("PASS", "NOT_APPLICABLE", "NOT_RUN")
                 for r in rows for m in r["mode_results"] if m["requested"]):
             status = "FAIL"
+        elif batch.get("status") == "FAIL":
+            status = "FAIL"
         else:
             status = "INCOMPLETE"
     profile = read_json(run / "raw/profile_metadata.json")

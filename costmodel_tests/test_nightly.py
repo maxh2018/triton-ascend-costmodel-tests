@@ -189,6 +189,13 @@ class NightlyTests(unittest.TestCase):
         mixed = [m for m in report['rows'][0]['mode_results'] if m['mode'] == 'mixed']
         self.assertEqual([m['factor'] for m in mixed], [4])
 
+    def test_completed_failed_batch_stays_failed_if_auto_rows_pass(self):
+        _, run, _ = self.run_job()
+        batch = dashboard.read_json(run / 'raw/batch_summary.json')
+        batch['status'] = 'FAIL'
+        dashboard.write_json(run / 'raw/batch_summary.json', batch)
+        self.assertEqual(dashboard.build_report(run)['status'], 'FAIL')
+
     def test_parallel_warning_does_not_relax_timing_acceptance(self):
         self.args.jobs = 4
         code, _, report = self.run_job("time")
