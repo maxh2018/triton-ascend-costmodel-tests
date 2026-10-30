@@ -23,6 +23,7 @@ ROOT = HERE.parents[6]
 sys.path.insert(0, str(ROOT))
 from costmodel_tests.manifests import load_manifest, select_cases
 from costmodel_tests.profiles import prepare_profile, profile_report_lines
+from costmodel_tests.comparison_modes import comparison_modes, matrix_mode_flags
 from costmodel_tests.pytest_runner import run_pytest_case
 
 
@@ -101,6 +102,8 @@ def partition_cases(cases: list[dict], batch_size: int) -> list[list[dict]]:
 
 
 def case_record_count(case: dict, validation_scope: str) -> int:
+    if validation_scope == "compare":
+        return len(comparison_modes(case))
     return 1 if validation_scope == "auto" else 5 + len(case.get("extra_modes", []))
 
 
@@ -126,7 +129,7 @@ def run_case_batch(cases: list[dict], batch_index: int, args: argparse.Namespace
     command = [
         sys.executable, str(MATRIX_SCRIPT),
         "--manifest", str(manifest_path),
-        *(["--include-explicit"] if args.validation_scope == "all" else []),
+        *matrix_mode_flags(args.validation_scope),
         "--profile", str(args.output_root / "costmodel_profile.json"),
         "--expected-bishengir", str(args.expected_bishengir),
         "--output-root", str(output),
@@ -285,7 +288,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--manifest", type=Path, default=ROOT / "cases/ci/manifest.json")
     parser.add_argument("--case", action="append", default=[], help="exact case name; repeat to select a batch")
-    parser.add_argument("--validation-scope", choices=("auto", "all"), default="auto")
+    parser.add_argument("--validation-scope", choices=("auto", "all", "compare"), default="auto")
     parser.add_argument("--output-root", type=Path, required=True)
     parser.add_argument("--jobs", type=int, default=1, help="maximum concurrent cases (routes within a case stay serial)")
     parser.add_argument("--retries", type=int, default=3, help="extra attempts after failure; 0 disables retries")
@@ -339,7 +342,7 @@ def main() -> None:
         parser.error("manifest cases must be nonempty")
     measurement_count = sum(
         0 if case.get("runner", "benchmark") == "pytest" else
-        (1 if args.validation_scope == "auto" else 5 + len(case.get("extra_modes", [])))
+        case_record_count(case, args.validation_scope)
         for case in selected
     )
     benchmark_case_count = sum(case.get("runner", "benchmark") == "benchmark"

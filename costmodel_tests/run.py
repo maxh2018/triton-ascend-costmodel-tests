@@ -35,7 +35,7 @@ def main() -> None:
     parser.add_argument("--expected-bishengir", type=Path)
     parser.add_argument("--triton-root", type=Path, default=ROOT)
     parser.add_argument("--npuir-root", type=Path, default=ROOT / "third_party/ascend/AscendNPU-IR")
-    parser.add_argument("--validation-scope", choices=("auto", "all"), default="auto",
+    parser.add_argument("--validation-scope", choices=("auto", "all", "compare"), default="auto",
                         help="default Auto; all adds explicit benchmark routes (pytest stays Auto)")
     parser.add_argument("--timing-source", choices=("auto", "profiler", "event"), default="auto",
                         help="auto uses device events for large selections")

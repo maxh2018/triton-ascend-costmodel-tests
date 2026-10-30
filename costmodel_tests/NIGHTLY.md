@@ -57,6 +57,10 @@ python costmodel_tests/nightly.py --device 1 --jobs 4 \
 
 # 首次结果自检，不自动重试
 python costmodel_tests/nightly.py --device 1 --jobs 4 --retries 0
+
+# 可选：同时采集 SIMD、SIMT-only 和已登记的 Mix 参考
+python costmodel_tests/nightly.py --device 1 --jobs 4 --modes all \
+  --label "TA-多模式对比" --output-root /path/to/nightly
 ```
 
 `--jobs 4` 表示 4 个用例共享 `--device` 指定的卡，每个用例仍执行 3 轮独立 Profiler 测量。
@@ -67,6 +71,7 @@ python costmodel_tests/nightly.py --device 1 --jobs 4 --retries 0
 |---|---|---|
 | `--device` | 必填 | 本轮所有用例共用的物理卡号 |
 | `--jobs` | `1` | 最多同时运行的 case 数量；设为 `4` 开启单卡 4 并发 |
+| `--modes` | `auto` | 默认仅 Auto；`all` 增加 SIMD、SIMT-only F1，以及清单 `extra_modes` 中登记的 Mix 参考 |
 | `--output-root` | `costmodel_test_results/nightly` | 固定保存目录；每天继续使用同一目录，历史不会被覆盖 |
 | `--label` | 空 | 当天的构建号或备注 |
 | `--retries` | `3` | 失败后的额外重试次数 |
@@ -109,9 +114,21 @@ costmodel_test_results/nightly/index.html
 
 - **最新批次状态**：通过、未通过、环境阻塞、运行中或结果不完整。
 - **历史记录**：选择日期 / 批次，查看最近批次通过数的变化。
-- **逐用例结果**：精度、预测时间、实测时间、APE、尝试次数及日志。
-- **筛选和排序**：按用例名称搜索，只看失败，按 APE 从大到小排列。
+- **近 10 天趋势**：查看全部用例 MAPE 或单用例 APE，四条曲线分别对应 Auto、SIMD、SIMT-only、Mix。
+- **模式对比**：点击模式卡片，切换该模式的精度、预测时间、实测时间、APE 和状态。
+- **实际选路**：显示 TA 最终生效的 SIMD / SIMT-only / Mix 及 factor；缺少证据时显示“未记录”。
+- **筛选和排序**：按用例名称搜索、筛选未通过用例；点击 **APE 表头**切换降序 / 升序，缺失值始终放在末尾。
 - **版本信息**：实际加载的 TA、profile 版本和哈希，以及测试仓提交。
+
+### 趋势和模式怎么看
+
+趋势截至所选批次日期，按北京时间展示连续 10 天；每天采用**同一用例集合、同一并发数**的最新已完成批次。
+`MAPE` 是有效用例 APE 的算术平均，悬停曲线数据点可查看当天覆盖数。
+只统计精度通过、启用时间验收的 Profiler 实测；未运行、运行中或阻塞批次不作为趋势采样，缺失日期留空。
+
+默认命令仍只测 Auto。旧历史中其他模式显示“未执行”，需要使用 `--modes all` 采集后才能比较。
+SIMD 和 SIMT-only 主要展示 F1；Mix 按清单登记的 factor 展示，未提供 Mix 实现的用例标记“不适用”。
+多模式会增加运行时间；启用后各实际请求模式均须精度和 APE 通过，整轮才能通过。Auto 默认验收范围保持不变。
 
 ### 在同一页面查看各用例 JSON
 
@@ -147,6 +164,7 @@ python -m http.server 8000 --bind <本机内网IP> --directory /path/to/nightly
 | 时间误差超标 | 精度通过，但 APE >10% |
 | 精度失败 | 计算结果未满足用例自身的精度要求 |
 | 执行异常 | 编译、运行或结果文件存在问题，不直接算作精度失败 |
+| 不适用 | 用例没有登记该模式的实现，例如大多数用例没有独立 Mix 参考 |
 | 环境阻塞 | 设备启动失败、设备 Critical、profile 预检等问题 |
 | 未执行 | 没有完成该用例；不能算作验收通过或精度失败 |
 | 未完成时间验收 | 缺少有效预测、Profiler 时间或时间验收记录；Event 数据不会算作正式通过 |

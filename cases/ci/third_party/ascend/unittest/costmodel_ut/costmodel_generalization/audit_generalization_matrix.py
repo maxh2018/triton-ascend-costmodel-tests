@@ -5,9 +5,12 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parents[6]))
+from costmodel_tests.comparison_modes import comparison_modes
 STANDARD_MODES = (
     ("auto", 1),
     ("simd", 1),
@@ -103,7 +106,7 @@ def main() -> None:
     parser.add_argument("--profile", type=Path, required=True)
     parser.add_argument("--manifest", type=Path, default=HERE.parents[4] / "manifest.json")
     parser.add_argument("--maximum-error", type=float, default=0.10)
-    parser.add_argument("--validation-scope", choices=("auto", "all"), default="auto",
+    parser.add_argument("--validation-scope", choices=("auto", "all", "compare"), default="auto",
                         help="auto: only the selected route; all: original full-route audit")
     args = parser.parse_args()
 
@@ -112,7 +115,8 @@ def main() -> None:
     manifest = load(args.manifest)
     expected = {}
     for case in manifest["cases"]:
-        modes = [("auto", 1)] if args.validation_scope == "auto" else list(STANDARD_MODES)
+        modes = (comparison_modes(case) if args.validation_scope == "compare" else
+                 [("auto", 1)] if args.validation_scope == "auto" else list(STANDARD_MODES))
         if args.validation_scope == "all":
             modes.extend((entry["route"], int(entry.get("factor", 1))) for entry in case.get("extra_modes", []))
         for mode, factor in modes:

@@ -10,9 +10,15 @@ import json
 import math
 from pathlib import Path
 import re
+import sys
 from urllib.parse import quote
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+from costmodel_tests.dashboard_metrics import (MODES, MODE_LABELS, actual_route,
+                                              summarize_modes, ten_day_trend)
+from costmodel_tests.comparison_modes import comparison_modes
+
 DEFAULT_OUTPUT = ROOT / "costmodel_test_results/nightly"
 LABELS = {
     "PASS": "通过",
@@ -21,6 +27,7 @@ LABELS = {
     "EXECUTION_FAIL": "执行异常",
     "BLOCKED": "环境阻塞",
     "NOT_RUN": "未执行",
+    "NOT_APPLICABLE": "不适用",
     "UNVERIFIED": "未完成时间验收",
     "RUNNING": "运行中",
     "FAIL": "未通过",
@@ -278,16 +285,17 @@ def prepare_case_json_view(run, name, result, matrix, metadata):
     return view, files
 
 
-def case_report(run, case, result, audits, matrix, metadata):
+def mode_report(run, case, result, audits, matrix, metadata, mode="auto", factor=1):
     name = case["name"]
     row = next(
         (r
          for r in result.get("audit_results", audits) if r.get("case") == name
-         and r.get("mode") == "auto" and r.get("factor") == 1), {})
-    record = next((r for r in matrix if r.get("name") == name + "__auto_f1"),
+         and r.get("mode") == mode and r.get("factor") == factor), {})
+    record = next((r for r in matrix if r.get("name") == f"{name}__{mode}_f{factor}"),
                   {})
     directory = artifact(run, record.get("evidence_dir"), metadata)
     evidence = read_json(directory / "evidence.json") if directory else {}
+    route = evidence.get("route_summary") or (read_json(directory / "route.json") if directory else {})
     benchmark = evidence.get("benchmark") or {}
     precision = benchmark.get("correct")
     if precision is None and result.get("precision_pass") is True:
@@ -317,8 +325,10 @@ def case_report(run, case, result, audits, matrix, metadata):
         s in text
         for s in ("Tensor-likes are not close", "Mismatched elements:",
                   "Not equal to tolerance", "Greatest absolute difference:"))
-    if not result and not row:
-        status = "NOT_RUN"
+    if (not result and not row) or (mode != "auto" and not row and not record):
+        status, precision, detail = "NOT_RUN", None, "该模式未测量"
+        if mode == "mixed" and not any(e.get("route") == "mixed" for e in case.get("extra_modes", [])):
+            status, detail = "NOT_APPLICABLE", "该用例未登记 Mix 参考实现"
     elif device_error:
         status, detail, precision = "BLOCKED", "NPU 初始化失败，尚未完成用例验收", None
     elif accuracy_error or benchmark.get("correct") is False:
@@ -331,17 +341,17 @@ def case_report(run, case, result, audits, matrix, metadata):
         detail = detail or "需要 Profiler 实测、有效预测和已启用的时间验收"
     elif ape > 10 + 1e-9:
         status = "TIME_FAIL"
-    elif row.get("pass") is True and result.get(
-            "status") == "PASS" and not reasons:
+    elif row.get("pass") is True and not reasons and (
+            result.get("status") == "PASS" or len(result.get("audit_results", audits)) > 1):
         status = "PASS"
     else:
         status = "EXECUTION_FAIL"
     if status not in ("PASS", "TIME_FAIL") and not detail:
         detail = text[-2500:] or result.get("error") or "结果或验收记录不完整"
     last_log = logs[0] if attempts else None
-    json_view, json_files = prepare_case_json_view(run, name, result, matrix,
-                                                   metadata)
     return {
+        "mode": mode,
+        "factor": factor,
         "name": name,
         "family": case.get("family", "custom"),
         "status": status,
@@ -350,14 +360,39 @@ def case_report(run, case, result, audits, matrix, metadata):
         "actual_us": actual,
         "ape_percent": ape,
         "measurement_source": source,
+        "timing_gate_applied": row.get("timing_gate_applied") is True,
+        **actual_route(route),
         "attempts": result.get("attempt_count", len(attempts)),
         "detail": detail,
         "log": link(run, last_log),
         "evidence":
         link(run, directory / "evidence.json") if directory else None,
-        "json_view": json_view,
-        "json_files": json_files,
     }
+
+
+def case_report(run, case, result, audits, matrix, metadata):
+    keys = [(mode, 1) for mode in MODES if mode != "mixed"]
+    for entry in case.get("extra_modes", []):
+        key = (entry["route"], int(entry.get("factor", 1)))
+        if key not in keys:
+            keys.append(key)
+    if not any(mode == "mixed" for mode, factor in keys):
+        keys.append(("mixed", 1))
+    for row in result.get("audit_results", audits):
+        key = (row.get("mode"), row.get("factor"))
+        if row.get("case") == case["name"] and key not in keys:
+            keys.append(key)
+    modes = [mode_report(run, case, result, audits, matrix, metadata, mode, factor)
+             for mode, factor in keys]
+    expected = (comparison_modes(case) if metadata.get("policy", {}).get("validation_scope") == "compare"
+                else [("auto", 1)])
+    for mode in modes:
+        mode["requested"] = (mode["mode"], mode["factor"]) in expected
+    row = dict(modes[0])
+    row["mode_results"] = modes
+    row["json_view"], row["json_files"] = prepare_case_json_view(
+        run, case["name"], result, matrix, metadata)
+    return row
 
 
 def build_report(run):
@@ -376,10 +411,13 @@ def build_report(run):
         for c in manifest.get("cases", [])
     ]
     counts = dict(Counter(r["status"] for r in rows))
+    comparing = metadata.get("policy", {}).get("validation_scope") == "compare"
+    comparison_complete = not comparing or all(
+        m["status"] == "PASS" for r in rows for m in r["mode_results"] if m["requested"])
     status = metadata.get("state", "INCOMPLETE")
     if status not in ("RUNNING", "BLOCKED", "INCOMPLETE"):
         if rows and all(r["status"] == "PASS" for r in rows) and metadata.get(
-                "returncode") == 0 and batch.get("status") == "PASS":
+                "returncode") == 0 and batch.get("status") == "PASS" and comparison_complete:
             status = "PASS"
         elif any(r["status"] in ("TIME_FAIL", "PRECISION_FAIL",
                                  "EXECUTION_FAIL", "UNVERIFIED")
@@ -389,6 +427,10 @@ def build_report(run):
             status = "BLOCKED"
         elif counts.get("BLOCKED"):
             status = "BLOCKED"
+        elif comparing and any(
+                m["status"] not in ("PASS", "NOT_APPLICABLE", "NOT_RUN")
+                for r in rows for m in r["mode_results"] if m["requested"]):
+            status = "FAIL"
         else:
             status = "INCOMPLETE"
     profile = read_json(run / "raw/profile_metadata.json")
@@ -417,6 +459,8 @@ def build_report(run):
         counts,
         "rows":
         rows,
+        "mode_summary": summarize_modes(rows),
+        "requested_modes": metadata.get("policy", {}).get("modes", ["auto"]),
         "message":
         message,
         "label":
@@ -448,12 +492,16 @@ def build_report(run):
     }
 
 
-def render(reports):
+def render(reports, history=None):
     template = Path(__file__).with_name("dashboard.html").read_text(
         encoding="utf-8")
     # A manifest name or log can contain </script>; keep embedded JSON inert.
-    payload = embedded_json({"reports": reports, "labels": LABELS})
-    return template.replace("__DASHBOARD_DATA__", payload)
+    payload = embedded_json({"reports": reports, "labels": LABELS,
+                             "mode_labels": MODE_LABELS,
+                             "trends": {r.get("id", ""): ten_day_trend(history or reports, r)
+                                        for r in reports}})
+    script = Path(__file__).with_name("dashboard.js").read_text(encoding="utf-8")
+    return template.replace("__DASHBOARD_DATA__", payload).replace("__DASHBOARD_SCRIPT__", script)
 
 
 def generate(output):
@@ -464,10 +512,13 @@ def generate(output):
             continue
         report = build_report(run)
         write_json(run / "dashboard.json", report)
-        write_text(run / "index.html", render([report]))
         portal = deepcopy(report)
         portal["base"] = "runs/" + quote(run.name, safe="") + "/"
         reports.append(portal)
+    for report in reports:
+        single = deepcopy(report)
+        single["base"] = ""
+        write_text(output / "runs" / report["id"] / "index.html", render([single], reports))
     output.mkdir(parents=True, exist_ok=True)
     write_text(output / "index.html", render(reports))
     return reports

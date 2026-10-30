@@ -137,6 +137,58 @@ class NightlyTests(unittest.TestCase):
         self.assertIn("资源争用", self.console)
         self.assertIn("4 个 case", (run / "nightly.log").read_text(encoding="utf-8"))
 
+    def test_comparison_request_is_forwarded_and_missing_modes_are_not_pass(self):
+        self.args.modes = "all"
+        code, run, report = self.run_job()
+        metadata = dashboard.read_json(run / "run.json")
+        command = metadata["command"]
+        self.assertEqual(command[command.index("--validation-scope") + 1], "compare")
+        self.assertEqual(metadata["policy"]["modes"], ["auto", "simd", "simt_only", "mixed"])
+        self.assertNotEqual(code, 0)
+        self.assertEqual(report["status"], "INCOMPLETE")
+
+    def test_effective_route_is_used_instead_of_recommendation(self):
+        _, run, _ = self.run_job()
+        matrix = dashboard.read_json(run / "raw/matrix_summary.json")
+        directory = Path(matrix["records"][0]["evidence_dir"])
+        (directory / "route.json").write_text(json.dumps({
+            "effective_decision_kind": "all_simt_only", "effective_runtime_factor": 4,
+            "recommended_decision_kind": "all_simd"}))
+        report = dashboard.build_report(run)
+        self.assertEqual(report["rows"][0]["actual_route"], "SIMT-only")
+        self.assertEqual(report["rows"][0]["actual_factor"], 4)
+        self.assertEqual(report["mode_summary"]["auto"]["valid_count"], 2)
+        self.assertIsNone(report["mode_summary"]["simd"]["mape_percent"])
+
+    def test_complete_comparison_accepts_declared_mix_f4_without_phantom_f1(self):
+        _, run, _ = self.run_job()
+        metadata = dashboard.read_json(run / "run.json")
+        metadata['policy']['validation_scope'] = 'compare'
+        dashboard.write_json(run / 'run.json', metadata)
+        manifest = dashboard.read_json(run / 'nightly_manifest.json')
+        manifest['cases'][0]['extra_modes'] = [{'route': 'mixed', 'factor': 4}]
+        dashboard.write_json(run / 'nightly_manifest.json', manifest)
+        batch = dashboard.read_json(run / 'raw/batch_summary.json')
+        matrix = dashboard.read_json(run / 'raw/matrix_summary.json')
+        for index, result in enumerate(batch['cases']):
+            original = dict(result['audit_results'][0])
+            modes = [('simd', 1), ('simt_only', 1)] + ([('mixed', 4)] if index == 0 else [])
+            source = Path(matrix['records'][index]['evidence_dir'])
+            for mode, factor in modes:
+                name = f"{result['case']}__{mode}_f{factor}"
+                directory = source.with_name(name)
+                directory.mkdir()
+                (directory / 'evidence.json').write_bytes((source / 'evidence.json').read_bytes())
+                matrix['records'].append({'name': name, 'evidence_dir': str(directory)})
+                result['audit_results'].append({**original, 'mode': mode, 'factor': factor})
+        dashboard.write_json(run / 'raw/batch_summary.json', batch)
+        dashboard.write_json(run / 'raw/matrix_summary.json', matrix)
+        report = dashboard.build_report(run)
+        self.assertEqual(report['status'], 'PASS')
+        self.assertEqual(report['mode_summary']['mixed']['valid_count'], 1)
+        mixed = [m for m in report['rows'][0]['mode_results'] if m['mode'] == 'mixed']
+        self.assertEqual([m['factor'] for m in mixed], [4])
+
     def test_parallel_warning_does_not_relax_timing_acceptance(self):
         self.args.jobs = 4
         code, _, report = self.run_job("time")

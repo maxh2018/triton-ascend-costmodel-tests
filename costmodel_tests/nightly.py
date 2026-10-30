@@ -203,6 +203,8 @@ def execute(args, runner=None, device_check=None, occupancy_check=None):
 
 def _execute(args, runner, device_check, occupancy_check):
     jobs = getattr(args, "jobs", 1)
+    modes = getattr(args, "modes", "auto")
+    scope = "compare" if modes == "all" else "auto"
     if jobs < 1:
         raise ValueError("--jobs must be positive")
     manifest = load_manifest(args.manifest)
@@ -221,7 +223,7 @@ def _execute(args, runner, device_check, occupancy_check):
         sys.executable,
         str(runner or ROOT / "costmodel_tests/run.py"), "--manifest",
         str(snapshot), "--device", args.device, "--output-root",
-        str(run / "raw"), "--validation-scope", "auto", "--timing-source",
+        str(run / "raw"), "--validation-scope", scope, "--timing-source",
         "profiler", "--measurement-processes", "3", "--warmup", "3",
         "--repeats", "7", "--jobs", str(jobs), "--compile-workers", "1",
         "--case-batch-size", "1", "--retries",
@@ -254,7 +256,8 @@ def _execute(args, runner, device_check, occupancy_check):
         "warnings": [],
         "policy": {
             "timing_source": "profiler",
-            "validation_scope": "auto",
+            "validation_scope": scope,
+            "modes": ["auto", "simd", "simt_only", "mixed"] if modes == "all" else ["auto"],
             "measurement_processes": 3,
             "maximum_ape_percent": 10,
             "jobs": jobs,
@@ -304,7 +307,7 @@ def _execute(args, runner, device_check, occupancy_check):
             write_json(run / "run.json", metadata)
         if metadata["state"] != "BLOCKED":
             print(
-                f"Running CI acceptance: Auto / Profiler / 3 measurements / APE <= 10% / jobs={jobs}",
+                f"Running CI acceptance: {'Auto/SIMD/SIMT-only/declared Mix' if modes == 'all' else 'Auto'} / Profiler / 3 measurements / APE <= 10% / jobs={jobs}",
                 flush=True)
             with (run / "nightly.log").open("w", encoding="utf-8") as log:
                 for warning in metadata["warnings"]:
@@ -384,6 +387,8 @@ def main():
                         type=int,
                         default=1,
                         help="concurrent cases sharing --device (default: 1)")
+    parser.add_argument("--modes", choices=("auto", "all"), default="auto",
+                        help="default Auto; all adds SIMD, SIMT-only F1 and declared Mix references")
     parser.add_argument("--timeout-hours",
                         type=float,
                         default=8,

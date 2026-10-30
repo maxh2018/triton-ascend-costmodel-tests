@@ -24,7 +24,7 @@ p.add_argument('case')
 p.add_argument('--output-root', type=Path)
 p.add_argument('--manifest', type=Path)
 p.add_argument('--profile', type=Path)
-p.add_argument('--validation-scope', choices=('auto', 'all'), default='auto')
+p.add_argument('--validation-scope', choices=('auto', 'all', 'compare'), default='auto')
 a, unused = p.parse_known_args()
 profile = json.loads(a.profile.read_text())
 if profile.get('microbenchmark_profile'):
@@ -48,6 +48,9 @@ modes = [('auto', 1), ('simd', 1), ('simt_only', 1), ('simt_only', 2), ('simt_on
 modes += [(m['route'], m['factor']) for m in case.get('extra_modes', [])]
 if a.validation_scope == 'auto':
     modes = [('auto', 1)]
+elif a.validation_scope == 'compare':
+    modes = [('auto', 1), ('simd', 1), ('simt_only', 1)]
+    modes += [(m['route'], m['factor']) for m in case.get('extra_modes', []) if m['route']=='mixed']
 candidate = {'legal': True, 'total_system_cycles': 10, 'runtime_physical_program_count': 1}
 route = {'selected_route_elapsed_prediction': {'applied': True, 'predicted_microseconds': 10},
          'stage_model': {'routes': {'all_simd': candidate, 'mixed_simd_simt': candidate},
@@ -180,6 +183,18 @@ class BatchTests(unittest.TestCase):
         self.assertEqual(len(records), 11)  # Mixed record remains included.
         self.assertTrue(all("attempt_02" in r["evidence_dir"] for r in records if r["name"].startswith("flaky__")))
         self.assertTrue(json.loads((output / "generalization_audit.json").read_text())["all_pass"])
+
+    def test_comparison_modes_run_only_declared_mix_references(self):
+        output = self.run_batch("--jobs", "2", "--device", "1", "--retries", "1",
+                                mode="stable", scope="compare")
+        summary = json.loads((output / "batch_summary.json").read_text())
+        self.assertEqual(summary["status"], "PASS")
+        self.assertEqual(summary["measurement_count"], 7)
+        records = json.loads((output / "matrix_summary.json").read_text())["records"]
+        self.assertEqual(len(records), 7)
+        self.assertEqual(sum(r['route']=='mixed' for r in records), 1)
+        self.assertTrue(any(r['name']=='stable__mixed_f4' for r in records))
+        self.assertFalse(any(r['route']=='simt_only' and r['factor']!=1 for r in records))
 
     def test_batch_profile_snapshot_keeps_shared_microbenchmark_dependency(self):
         dependency = self.root / "microbench/hardware.json"

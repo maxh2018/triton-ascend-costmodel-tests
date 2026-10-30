@@ -18,6 +18,7 @@ HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parents[4]
 sys.path.insert(0, str(HERE.parents[6]))
 from costmodel_tests.profiles import prepare_profile
+from costmodel_tests.comparison_modes import comparison_modes
 
 
 def capture(command: list[str], cwd: Path | None = None) -> dict:
@@ -176,6 +177,8 @@ def main() -> None:
         help="deprecated alias for --timing-source event",
     )
     parser.add_argument("--include-explicit", action="store_true")
+    parser.add_argument("--comparison-modes", action="store_true",
+                        help="Auto/SIMD/SIMT F1 and manifest-declared Mix references")
     parser.add_argument(
         "--mode",
         action="append",
@@ -251,6 +254,8 @@ def main() -> None:
         if factor <= 0:
             parser.error(f"factor must be positive in --mode: {mode_spec}")
         modes.append((route, factor))
+    if args.comparison_modes and (args.mode or args.include_explicit):
+        parser.error("--comparison-modes cannot be combined with --mode/--include-explicit")
     if not modes:
         modes = [("auto", 1)]
     if args.include_explicit and not args.mode:
@@ -262,7 +267,7 @@ def main() -> None:
             continue
         if args.only_family and case["family"] not in args.only_family:
             continue
-        global_measurement_count += len(modes)
+        global_measurement_count += len(comparison_modes(case)) if args.comparison_modes else len(modes)
         if args.include_explicit and not args.mode:
             global_measurement_count += len(case.get("extra_modes", []))
 
@@ -274,7 +279,7 @@ def main() -> None:
             continue
         if case_index % args.shard_count != args.shard_index:
             continue
-        case_modes = list(modes)
+        case_modes = comparison_modes(case) if args.comparison_modes else list(modes)
         if args.include_explicit and not args.mode:
             case_modes += [
                 (entry["route"], int(entry.get("factor", 1)))

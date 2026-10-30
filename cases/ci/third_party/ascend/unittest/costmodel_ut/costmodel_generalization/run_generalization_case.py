@@ -20,6 +20,7 @@ import sys
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parents[6]))
 from costmodel_tests.profiles import prepare_profile
+from costmodel_tests.comparison_modes import comparison_modes, matrix_mode_flags
 
 
 def run_logged(command: list[str], env: dict[str, str], log: Path) -> int:
@@ -34,7 +35,7 @@ def main() -> None:
     parser.add_argument("case", help="exact case name from cases/ci/manifest.json")
     parser.add_argument("--device", help="ASCEND_RT_VISIBLE_DEVICES value")
     parser.add_argument("--manifest", type=Path, default=HERE.parents[4] / "manifest.json")
-    parser.add_argument("--validation-scope", choices=("auto", "all"), default="auto")
+    parser.add_argument("--validation-scope", choices=("auto", "all", "compare"), default="auto")
     parser.add_argument("--output-root", type=Path, help="new or empty output directory")
     parser.add_argument(
         "--profile", type=Path,
@@ -92,14 +93,15 @@ def main() -> None:
     subset.write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
 
     env["TRITON_ASCEND_AUTO_SIMT_PROFILE"] = str(profile)
-    expected_count = 1 if args.validation_scope == "auto" else 5 + len(selected[0].get("extra_modes", []))
+    expected_count = (len(comparison_modes(selected[0])) if args.validation_scope == "compare" else
+                      1 if args.validation_scope == "auto" else 5 + len(selected[0].get("extra_modes", [])))
     print(f"Case: {args.case}; expected route records: {expected_count}", flush=True)
     print(f"Output: {output}", flush=True)
     print("[1/2] Running correctness checks and profiling; see runner.log", flush=True)
     runner_status = run_logged([
         sys.executable, str(HERE / "run_generalization_matrix.py"),
         "--manifest", str(subset),
-        *(["--include-explicit"] if args.validation_scope == "all" else []),
+        *matrix_mode_flags(args.validation_scope),
         "--profile", str(profile),
         "--expected-bishengir", str(Path(compiler).resolve()),
         "--output-root", str(output),
